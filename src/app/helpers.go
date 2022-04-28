@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io/fs"
-	"path/filepath"
+	"log"
 	"strconv"
 )
 
@@ -13,6 +13,10 @@ func delay() {
 }
 
 func inputselect_from_array(choses []string) int {
+	if len(choses) == 0 {
+		log.Fatal("empty list passed")
+	}
+
 	for {
 		for i, label := range choses {
 			fmt.Printf("%d: %s\n", i, label)
@@ -31,7 +35,7 @@ func inputselect_from_array(choses []string) int {
 
 func getKeys() ([]fs.DirEntry, []string) {
 	var list []string
-	keys, _ := resources.ReadDir(filepath.Join("resources", "keys"))
+	keys, _ := resources.ReadDir("resources/keys")
 
 	for _, entry := range keys {
 		list = append(list, entry.Name())

@@ -22,6 +22,11 @@ func item_patch() {
 	fmt.Println("Searching for *.vmoptions files ... ")
 	files, appdataDirs := patcher.GetTool().FindDirectories()
 
+	if len(files) == 0 {
+		fmt.Println("No *.vmoptions files found")
+		return
+	}
+
 	fmt.Println("Choose what to patch:")
 	selected := inputselect_from_array(files)
 

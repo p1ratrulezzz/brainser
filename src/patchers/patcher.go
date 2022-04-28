@@ -25,22 +25,3 @@ func (p Patcher) GetTool() PatcherTool {
 
 	return p.Tool
 }
-
-type PatcherToolWindows struct {
-	PatcherTool
-}
-
-func (p PatcherToolWindows) FindDirectories() ([]string, []string) {
-	panic("not implemented")
-}
-
-type PatcherToolLinux struct {
-	PatcherTool
-}
-
-func (p PatcherToolLinux) FindDirectories() ([]string, []string) {
-	files := findVmoptionsFiles([]string{"/home", "/opt"})
-	appdataDirs := findLinuxAppdataDirs()
-
-	return files, appdataDirs
-}
