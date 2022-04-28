@@ -26,7 +26,7 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) {
 			return
 		}
 
-		jarfileContent, _ := resources.ReadFile(filepath.Join("resources", agentName))
+		jarfileContent, _ := resources.ReadFile("resources/" + agentName)
 		fpJarfile.Write(jarfileContent)
 		fpJarfile.Close()
 	}
@@ -77,7 +77,7 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) {
 
 	keyPath := filepath.Join(destinationDir, key.Name())
 	fpKey, _ := os.Create(keyPath)
-	keyContent, _ := resources.ReadFile(filepath.Join("resources", "keys", key.Name()))
+	keyContent, _ := resources.ReadFile("resources/keys/" + key.Name())
 	fpKey.Write(keyContent)
 	fpKey.Close()
 
