@@ -4,43 +4,78 @@ import (
 	"bufio"
 	"embed"
 	"fmt"
-	"jetbrainser/src/patchers"
+	"github.com/inancgumus/screen"
 	"log"
 	"os"
 	"runtime"
+	"strconv"
 )
 
 //go:embed resources
 var resources embed.FS
 
-var os_name string
+var osName string
+
+var stdin *bufio.Reader
 
 func init() {
-	os_name = runtime.GOOS
+	osName = runtime.GOOS
 	os_supported := map[string]bool{
 		"windows": true,
 		"linux":   true,
 		"darwin":  true,
 	}
 
-	if !os_supported[os_name] {
-		log.Fatal(fmt.Sprintf("this os \"%s\" is not supported (yet)", os_name))
+	if !os_supported[osName] {
+		log.Fatal(fmt.Sprintf("this os \"%s\" is not supported (yet)", osName))
 	}
-}
 
-func delay() {
-	fmt.Print("Press 'Enter' to continue...")
-	bufio.NewReader(os.Stdin).ReadBytes('\n')
+	stdin = bufio.NewReader(os.Stdin)
 }
 
 func main() {
-	// data, _ := app.resources.ReadFile("app.resources/JetbrainsIdesCrack_5_3_1_KeepMyLic.jar")
-	// print(string(data))
-	print("OK")
+	menu_loop()
+}
 
-	patcher := patchers.Patcher{os_name, nil}
+func menu_loop() {
+	const ITEM_SHOWINFO = 0
+	const ITEM_PATCH = 1
+	const ITEM_EXIT = 2
 
-	patcher.GetTool().FindDirectories()
+	items := map[byte]string{
+		ITEM_SHOWINFO: "Show info",
+		ITEM_PATCH:    "Patch (default flow)",
+		ITEM_EXIT:     "Exit",
+	}
 
-	delay()
+	func() {
+		var selected_item int
+		for {
+			screen.Clear()
+			screen.MoveTopLeft()
+
+			for i := 0; i < len(items); i++ {
+				fmt.Printf("%d. %s\n", i, items[byte(i)])
+			}
+
+			var inbuf []byte
+			inbuf, _, _ = stdin.ReadLine()
+			selected_item, _ = strconv.Atoi(string(inbuf))
+
+			if selected_item == ITEM_EXIT {
+				break
+			}
+
+			switch selected_item {
+			case ITEM_SHOWINFO:
+				item_show_info()
+				break
+			case ITEM_PATCH:
+				item_patch()
+				break
+			}
+
+			delay()
+		}
+	}()
 }
