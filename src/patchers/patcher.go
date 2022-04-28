@@ -1,11 +1,7 @@
 package patchers
 
-import (
-	"fmt"
-)
-
 type PatcherTool interface {
-	FindDirectories()
+	FindDirectories() ([]string, []string)
 	PatchDirectory()
 }
 
@@ -34,14 +30,17 @@ type PatcherToolWindows struct {
 	PatcherTool
 }
 
-func (p PatcherToolWindows) FindDirectories() {
-	fmt.Println("Found some directories for windows")
+func (p PatcherToolWindows) FindDirectories() ([]string, []string) {
+	panic("not implemented")
 }
 
 type PatcherToolLinux struct {
 	PatcherTool
 }
 
-func (p PatcherToolLinux) FindDirectories() {
-	fmt.Println("Found some directories for linux")
+func (p PatcherToolLinux) FindDirectories() ([]string, []string) {
+	files := findVmoptionsFiles([]string{"/home", "/opt"})
+	appdataDirs := findLinuxAppdataDirs()
+
+	return files, appdataDirs
 }
