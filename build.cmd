@@ -17,3 +17,11 @@ go build -o "%OUTDIR%/%BINARY_NAME%-linux-arm64" "%SRCPATH%"
 SET GOARCH=arm64
 SET GOOS=windows
 go build -o "%OUTDIR%/%BINARY_NAME%-win-arm64.exe" "%SRCPATH%"
+
+SET GOARCH=arm64
+SET GOOS=darwin
+go build -o "%OUTDIR%/%BINARY_NAME%-osx-arm64" "%SRCPATH%"
+
+SET GOARCH=amd64
+SET GOOS=darwin
+go build -o "%OUTDIR%/%BINARY_NAME%-osx-amd64" "%SRCPATH%"
