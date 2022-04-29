@@ -19,6 +19,11 @@ func (p Patcher) GetTool() PatcherTool {
 		case "linux":
 			p.Tool = PatcherToolLinux{}
 			break
+		case "darwin":
+			p.Tool = PatcherToolDarwin{}
+			break
+		default:
+			panic("unknown os")
 		}
 
 	}
