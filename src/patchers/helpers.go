@@ -62,23 +62,3 @@ func findAppdataDirs(root string) []string {
 
 	return files
 }
-
-func findLinuxAppdataDirs() []string {
-	var files []string
-	err := filepath.Walk("/home", func(path string, info os.FileInfo, err error) error {
-		if filepath.Base(path) == ".config" {
-			if err == nil && info.IsDir() {
-				files = append(files, findAppdataDirs(path)...)
-			}
-
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return []string{}
-	}
-
-	return files
-}
