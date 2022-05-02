@@ -5,14 +5,12 @@ import (
 )
 
 type PatcherToolDarwin struct {
-	PatcherTool
+	*PatcherToolAbstract
 }
 
-func (p PatcherToolDarwin) FindDirectories() ([]string, []string) {
+func (p *PatcherToolDarwin) FindVmoptionsFiles() []string {
 	homeDir, _ := os.UserHomeDir()
-	configDir, _ := os.UserConfigDir()
 	files := findVmoptionsFiles([]string{homeDir + "/Applications", "/Applications"})
-	appdataDirs := findAppdataDirs(configDir)
 
-	return files, appdataDirs
+	return files
 }

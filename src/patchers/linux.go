@@ -3,14 +3,12 @@ package patchers
 import "os"
 
 type PatcherToolLinux struct {
-	PatcherTool
+	PatcherToolAbstract
 }
 
-func (p PatcherToolLinux) FindDirectories() ([]string, []string) {
+func (p *PatcherToolLinux) FindVmoptionsFiles() []string {
 	homeDir, _ := os.UserHomeDir()
-	configDir, _ := os.UserConfigDir()
-	files := findVmoptionsFiles([]string{homeDir, "/opt"})
-	appdataDirs := findAppdataDirs(configDir)
+	files := findVmoptionsFiles([]string{"/opt", homeDir + "/.local/share/JetBrains"})
 
-	return files, appdataDirs
+	return files
 }

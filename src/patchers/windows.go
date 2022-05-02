@@ -3,11 +3,10 @@ package patchers
 import "os"
 
 type PatcherToolWindows struct {
-	PatcherTool
+	*PatcherToolAbstract
 }
 
-func (p PatcherToolWindows) FindDirectories() ([]string, []string) {
-	configDir, _ := os.UserConfigDir()
+func (p *PatcherToolWindows) FindVmoptionsFiles() []string {
 	var programfilesDirectories = []string{}
 	programfilesDir := os.Getenv("programfiles")
 	if programfilesDir != "" {
@@ -19,9 +18,7 @@ func (p PatcherToolWindows) FindDirectories() ([]string, []string) {
 		programfilesDirectories = append(programfilesDirectories, programfilesDir)
 	}
 
-	_ = programfilesDir
 	files := findVmoptionsFiles(programfilesDirectories)
-	appdata_dirs := findAppdataDirs(configDir)
 
-	return files, appdata_dirs
+	return files
 }

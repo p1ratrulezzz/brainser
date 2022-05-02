@@ -1,8 +1,9 @@
 package patchers
 
 type PatcherTool interface {
-	FindDirectories() ([]string, []string)
-	PatchDirectory()
+	FindVmoptionsFiles() []string
+	FindVmoptionsFilesInConfigDir() []string
+	FindConfigDirectories() []string
 }
 
 type Patcher struct {
@@ -10,17 +11,17 @@ type Patcher struct {
 	Tool   PatcherTool
 }
 
-func (p Patcher) GetTool() PatcherTool {
+func (p *Patcher) GetTool() PatcherTool {
 	if p.Tool == nil {
 		switch p.OsName {
 		case "windows":
-			p.Tool = PatcherToolWindows{}
+			p.Tool = &PatcherToolWindows{}
 			break
 		case "linux":
-			p.Tool = PatcherToolLinux{}
+			p.Tool = &PatcherToolLinux{}
 			break
 		case "darwin":
-			p.Tool = PatcherToolDarwin{}
+			p.Tool = &PatcherToolDarwin{}
 			break
 		default:
 			panic("unknown os")

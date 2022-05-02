@@ -20,34 +20,64 @@ Visit: https://forum.losper.net/
 }
 
 func item_patch() {
+	fmt.Println("Before patching, start your JetBrains product once and close it. Then press enter to continue...")
+	stdin.ReadLine()
+
 	patcher := patchers.Patcher{osName, nil}
 	fmt.Println("Searching for *.vmoptions files ... ")
-	files, appdataDirs := patcher.GetTool().FindDirectories()
+	tool := patcher.GetTool()
+	files := tool.FindVmoptionsFiles()
 
-	if len(files) == 0 {
-		fmt.Println("No *.vmoptions files found")
-		return
-	}
+	var sourceVmoptionsPath string
+	var appdataSelected string
+	if len(files) > 0 {
+		fmt.Println("Choose what to patch:")
+		selected := inputselect_from_array(files)
+		sourceVmoptionsPath = files[selected]
+		fmt.Printf("I will patch %s\n", sourceVmoptionsPath)
 
-	fmt.Println("Choose what to patch:")
-	selected := inputselect_from_array(files)
+		appdataDirs := patcher.GetTool().FindConfigDirectories()
+		appdataDirs = append([]string{"Patch in place"}, appdataDirs...)
+		fmt.Println("Select where to put key and *.vmoptions file")
+		selectedFolder := inputselect_from_array(appdataDirs)
+		if selectedFolder != 0 {
+			appdataSelected = appdataDirs[selectedFolder]
+			fmt.Printf("I will put key into %s\n", appdataSelected)
+		}
 
-	fmt.Printf("I will patch %s\n", files[selected])
-
-	appdataDirs = append([]string{"Patch in place"}, appdataDirs...)
-	fmt.Println("Select where to put key and *.vmoptions file")
-	selectedFolder := inputselect_from_array(appdataDirs)
-
-	appdataSelected := ""
-	if selectedFolder == 0 {
-		fmt.Printf("I will put key into %s\n", filepath.Dir(files[selected]))
 	} else {
-		appdataSelected = appdataDirs[selectedFolder]
-		fmt.Printf("I will put key into %s\n", appdataDirs[selectedFolder])
+		fmt.Println("No *.vmoptions files found in program files dir")
+		fmt.Println("Searching for *.vmoptions in config dir")
+
+		filesInConfigDir := patcher.GetTool().FindVmoptionsFilesInConfigDir()
+		if len(filesInConfigDir) == 0 {
+			fmt.Println("No *.vmoptions files found in config dir. Program can't be continued")
+			return
+		}
+
+		fmt.Println("Choose a file to patch:")
+		selected := inputselect_from_array(filesInConfigDir)
+		sourceVmoptionsPath = filesInConfigDir[selected]
+		appdataSelected = ""
 	}
 
-	fmt.Println("Choose the key to use")
-	chosenKey := inputselect_from_array(KeyList)
+	if appdataSelected == "" {
+		fmt.Printf("I will put key into %s\n", filepath.Dir(sourceVmoptionsPath))
+	}
 
-	doPatch(files[selected], appdataSelected, chosenKey)
+	fmt.Println("Choose the key to use (by your product type)")
+	chosenKeyIndex := inputselect_from_array(KeyList)
+
+	doPatch(sourceVmoptionsPath, appdataSelected, chosenKeyIndex)
+}
+
+func item_patch_all() {
+	patcher := patchers.Patcher{osName, nil}
+	tool := patcher.GetTool()
+	allProducts := tool.FindVmoptionsFiles()
+	for _, path := range allProducts {
+		filepath.Dir(path)
+	}
+
+	_ = tool
 }

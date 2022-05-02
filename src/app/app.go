@@ -38,14 +38,19 @@ func main() {
 }
 
 func menu_loop() {
+	//item_patch_all()
+	// @fixme: Remove
+	//panic("remove this")
 	const ITEM_SHOWINFO = 0
 	const ITEM_PATCH = 1
-	const ITEM_EXIT = 2
+	const ITEM_PATCH_ALL = 2
+	const ITEM_EXIT = 3
 
 	items := map[byte]string{
 		ITEM_SHOWINFO: "Show info",
 		ITEM_PATCH:    "Patch (default flow)",
-		ITEM_EXIT:     "Exit",
+		// ITEM_PATCH_ALL: "Smart (but not clever) patch everything",
+		ITEM_EXIT: "Exit",
 	}
 
 	func() {
@@ -72,6 +77,9 @@ func menu_loop() {
 				break
 			case ITEM_PATCH:
 				item_patch()
+				break
+			case ITEM_PATCH_ALL:
+				item_patch_all()
 				break
 			}
 
