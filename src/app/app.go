@@ -7,7 +7,9 @@ import (
 	"github.com/inancgumus/screen"
 	"log"
 	"os"
+	"reflect"
 	"runtime"
+	"sort"
 	"strconv"
 )
 
@@ -53,14 +55,19 @@ func menu_loop() {
 		ITEM_EXIT: "Exit",
 	}
 
+	itemsKeys := reflect.ValueOf(items).MapKeys()
+	sort.SliceStable(itemsKeys, func(i, j int) bool {
+		return i < j
+	})
+
 	func() {
 		var selected_item int
 		for {
 			screen.Clear()
 			screen.MoveTopLeft()
 
-			for i := 0; i < len(items); i++ {
-				fmt.Printf("%d. %s\n", i, items[byte(i)])
+			for _, i := range itemsKeys {
+				fmt.Printf("%d. %s\n", i, items[byte(i.Uint())])
 			}
 
 			var inbuf []byte
@@ -80,6 +87,9 @@ func menu_loop() {
 				break
 			case ITEM_PATCH_ALL:
 				item_patch_all()
+				break
+			default:
+				fmt.Println("Incorrect choice")
 				break
 			}
 

@@ -55,7 +55,7 @@ func getResource(path string) []byte {
 	return resData
 }
 
-func cleanup_vmoptions(vmoptionsContent []byte) string {
+func cleanupVmoptions(vmoptionsContent []byte) string {
 	vmoptionsContentString := string(vmoptionsContent)
 	offset := 0
 	needle := "-javaagent:"

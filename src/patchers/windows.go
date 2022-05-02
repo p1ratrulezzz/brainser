@@ -1,6 +1,9 @@
 package patchers
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+)
 
 type PatcherToolWindows struct {
 	*PatcherToolAbstract
@@ -17,6 +20,9 @@ func (p *PatcherToolWindows) FindVmoptionsFiles() []string {
 	if programfilesDir != "" {
 		programfilesDirectories = append(programfilesDirectories, programfilesDir)
 	}
+
+	configDir, _ := os.UserConfigDir()
+	programfilesDirectories = append(programfilesDirectories, filepath.Join(configDir, "..", "Local", "JetBrains", "Toolbox"))
 
 	files := findVmoptionsFiles(programfilesDirectories)
 

@@ -37,7 +37,7 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) {
 		vmoptionsContent, _ = os.ReadFile(vmoptionsNewPath)
 	}
 
-	vmoptionsContentString := cleanup_vmoptions(vmoptionsContent)
+	vmoptionsContentString := cleanupVmoptions(vmoptionsContent)
 	vmoptionsContentString += "-javaagent:" + jarname
 
 	err = os.WriteFile(vmoptionsNewPath, []byte(vmoptionsContentString), 0644)

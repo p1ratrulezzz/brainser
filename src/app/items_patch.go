@@ -6,19 +6,6 @@ import (
 	"path/filepath"
 )
 
-func item_show_info() {
-	info := `
-This tool is provided specially for Typical Society forum and shipped AS IS.
-This tool is open source and can be used by anyone. 
-Please note, this tool is only for demonstrating and non commercial use, 
-if you love some software - buy it and use freely.
-
-Visit: https://forum.losper.net/
-
-`
-	print(info)
-}
-
 func item_patch() {
 	fmt.Println("Before patching, start your JetBrains product once and close it. Then press enter to continue...")
 	stdin.ReadLine()
@@ -34,11 +21,12 @@ func item_patch() {
 		fmt.Println("Choose what to patch:")
 		selected := inputselect_from_array(files)
 		sourceVmoptionsPath = files[selected]
-		fmt.Printf("I will patch %s\n", sourceVmoptionsPath)
+		fmt.Printf("I will patch %s\nSearching for config dirs...", sourceVmoptionsPath)
 
 		appdataDirs := patcher.GetTool().FindConfigDirectories()
 		appdataDirs = append([]string{"Patch in place"}, appdataDirs...)
 		fmt.Println("Select where to put key and *.vmoptions file")
+		fmt.Println("If it is a Toolbox installed software, choose 0 - Patch in place")
 		selectedFolder := inputselect_from_array(appdataDirs)
 		if selectedFolder != 0 {
 			appdataSelected = appdataDirs[selectedFolder]
@@ -69,15 +57,4 @@ func item_patch() {
 	chosenKeyIndex := inputselect_from_array(KeyList)
 
 	doPatch(sourceVmoptionsPath, appdataSelected, chosenKeyIndex)
-}
-
-func item_patch_all() {
-	patcher := patchers.Patcher{osName, nil}
-	tool := patcher.GetTool()
-	allProducts := tool.FindVmoptionsFiles()
-	for _, path := range allProducts {
-		filepath.Dir(path)
-	}
-
-	_ = tool
 }

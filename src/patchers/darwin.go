@@ -10,7 +10,8 @@ type PatcherToolDarwin struct {
 
 func (p *PatcherToolDarwin) FindVmoptionsFiles() []string {
 	homeDir, _ := os.UserHomeDir()
-	files := findVmoptionsFiles([]string{homeDir + "/Applications", "/Applications"})
+	configDir, _ := os.UserConfigDir()
+	files := findVmoptionsFiles([]string{homeDir + "/Applications", "/Applications", configDir + "/Jetbrains/Toolbox"})
 
 	return files
 }
