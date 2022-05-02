@@ -2,10 +2,24 @@ package main
 
 import (
 	"fmt"
-	"io/fs"
+	"jetbrainser/src/cryptor"
 	"log"
 	"strconv"
+	"strings"
 )
+
+var KeyList = []string{
+	"appcode",
+	"clion",
+	"datagrip",
+	"goland",
+	"idea",
+	"phpstorm",
+	"pycharm",
+	"rider",
+	"rubymine",
+	"webstorm",
+}
 
 func delay() {
 	fmt.Print("Press 'Enter' to continue...")
@@ -33,13 +47,37 @@ func inputselect_from_array(choses []string) int {
 	}
 }
 
-func getKeys() ([]fs.DirEntry, []string) {
-	var list []string
-	keys, _ := resources.ReadDir("resources/keys")
+func getResource(path string) []byte {
+	path = strings.TrimSuffix(path, ".enc")
+	encrypted, _ := resources.ReadFile("resources_enc/" + path + ".enc")
+	resData := cryptor.Decrypt(encrypted)
 
-	for _, entry := range keys {
-		list = append(list, entry.Name())
+	return resData
+}
+
+func cleanup_vmoptions(vmoptionsContent []byte) string {
+	vmoptionsContentString := string(vmoptionsContent)
+	offset := 0
+	needle := "-javaagent:"
+	for pos := 0; offset < len(vmoptionsContentString) && pos != -1; {
+		pos = strings.Index(vmoptionsContentString[offset:], needle)
+		if pos == -1 {
+			continue
+		}
+
+		offsettmp := offset
+		offset += pos + len(needle)
+		pos += offsettmp
+
+		if vmoptionsContentString[(pos-1):pos] != "#" {
+			vmoptionsContentString = vmoptionsContentString[0:pos] + "#" + vmoptionsContentString[pos:]
+			offset--
+		}
 	}
 
-	return keys, list
+	if vmoptionsContentString[len(vmoptionsContentString)-1:] != "\n" {
+		vmoptionsContentString += "\n"
+	}
+
+	return vmoptionsContentString
 }

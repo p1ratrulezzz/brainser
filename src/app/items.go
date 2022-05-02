@@ -20,8 +20,6 @@ Visit: https://forum.losper.net/
 }
 
 func item_patch() {
-	_, keylist := getKeys()
-
 	patcher := patchers.Patcher{osName, nil}
 	fmt.Println("Searching for *.vmoptions files ... ")
 	files, appdataDirs := patcher.GetTool().FindDirectories()
@@ -49,7 +47,7 @@ func item_patch() {
 	}
 
 	fmt.Println("Choose the key to use")
-	chosenKey := inputselect_from_array(keylist)
+	chosenKey := inputselect_from_array(KeyList)
 
 	doPatch(files[selected], appdataSelected, chosenKey)
 }

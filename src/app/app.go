@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-//go:embed resources
+//go:embed resources_enc
 var resources embed.FS
 
 var osName string

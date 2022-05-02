@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
-const agentName = "JetbrainsIdesCrack_5_3_1_KeepMyLic.jar"
+const agentName = "agent.jar"
 
 func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) {
 	destinationDir := destinationPath
@@ -18,17 +17,14 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) {
 
 	jarname := filepath.Join(destinationDir, agentName)
 	if _, err := os.Stat(jarname); err == nil {
-		fmt.Printf("File %s already exists\n", jarname)
-	} else {
-		fpJarfile, err := os.Create(jarname)
-		if err != nil {
-			fmt.Printf("Can't create file %s. Error: %s \n", jarname, err.Error())
-			return
-		}
+		fmt.Printf("File %s already exists, but will be overwritten\n", jarname)
+	}
 
-		jarfileContent, _ := resources.ReadFile("resources/" + agentName)
-		fpJarfile.Write(jarfileContent)
-		fpJarfile.Close()
+	jarfileContent := getResource(agentName)
+	err := os.WriteFile(jarname, jarfileContent, 0644)
+	if err != nil {
+		fmt.Printf("File %s can't be written", jarname)
+		return
 	}
 
 	vmoptionsName := filepath.Base(vmoptionsPath)
@@ -41,43 +37,18 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) {
 		vmoptionsContent, _ = os.ReadFile(vmoptionsNewPath)
 	}
 
-	vmoptionsContentString := string(vmoptionsContent)
-	offset := 0
-	needle := "-javaagent:"
-	for pos := 0; offset < len(vmoptionsContentString) && pos != -1; {
-		pos = strings.Index(vmoptionsContentString[offset:], needle)
-		if pos == -1 {
-			continue
-		}
+	vmoptionsContentString := cleanup_vmoptions(vmoptionsContent)
+	vmoptionsContentString += "-javaagent:" + jarname
 
-		pos += offset
-
-		if vmoptionsContentString[(pos-1):pos] != "#" {
-			vmoptionsContentString = vmoptionsContentString[0:pos] + "#" + vmoptionsContentString[pos:]
-			offset--
-		}
-
-		offset += pos + len(needle)
-	}
-
-	if vmoptionsContentString[len(vmoptionsContentString)-1:] != "\n" {
-		vmoptionsContentString += "\n"
-	}
-
-	vmoptionsContentString += needle + jarname
-
-	err := os.WriteFile(vmoptionsNewPath, []byte(vmoptionsContentString), 0644)
+	err = os.WriteFile(vmoptionsNewPath, []byte(vmoptionsContentString), 0644)
 	if err != nil {
 		fmt.Println("Writing error. Error: " + err.Error())
 		return
 	}
 
-	keys, _ := getKeys()
-	key := keys[keyIndex]
-
-	keyPath := filepath.Join(destinationDir, key.Name())
-	fpKey, _ := os.Create(keyPath)
-	keyContent, _ := resources.ReadFile("resources/keys/" + key.Name())
+	keyPath := filepath.Join(destinationDir, KeyList[keyIndex]+".key")
+	fpKey, err := os.Create(keyPath)
+	keyContent := getResource("universal.key")
 	fpKey.Write(keyContent)
 	fpKey.Close()
 
