@@ -9,7 +9,9 @@ import (
 
 const agentName = "agent.jar"
 
-func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) {
+func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) []string {
+	var errorMessages []string
+
 	destinationDir := destinationPath
 	if destinationDir == "" {
 		destinationDir = filepath.Dir(vmoptionsPath)
@@ -23,8 +25,8 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) {
 	jarfileContent := getResource(agentName)
 	err := os.WriteFile(jarname, jarfileContent, 0644)
 	if err != nil {
-		fmt.Printf("File %s can't be written", jarname)
-		return
+		errorMessages = append(errorMessages, fmt.Sprintf("File %s can't be written", jarname))
+		return errorMessages
 	}
 
 	vmoptionsName := filepath.Base(vmoptionsPath)
@@ -42,8 +44,8 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) {
 
 	err = os.WriteFile(vmoptionsNewPath, []byte(vmoptionsContentString), 0644)
 	if err != nil {
-		fmt.Println("Writing error. Error: " + err.Error())
-		return
+		errorMessages = append(errorMessages, fmt.Sprintf("Writing error. Error: "+err.Error()))
+		return errorMessages
 	}
 
 	keyPath := filepath.Join(destinationDir, KeyList[keyIndex]+".key")
@@ -53,4 +55,5 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) {
 	fpKey.Close()
 
 	fmt.Println("Patched successfully!")
+	return errorMessages
 }

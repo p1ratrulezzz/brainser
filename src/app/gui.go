@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"jetbrainser/src/patchers"
+	"strings"
 )
 
 func gui() {
@@ -31,15 +32,18 @@ func gui() {
 			return widget.NewLabel("template")
 		},
 		func(i binding.DataItem, o fyne.CanvasObject) {
-			o.(*widget.Label).Bind(i.(binding.String))
+			wdbLbl := o.(*widget.Label)
+			wdbLbl.Alignment = fyne.TextAlignTrailing
+			wdbLbl.Bind(i.(binding.String))
+
 		})
 
 	wdgLabelTop := widget.NewLabel("Select source *.vmoptions file from the list")
 	step := 0
 	selectedIndex := 0
 	var ptrWdgButtonNext *widget.Button
+	var selectedSource, selectedAppdata, selectedKey int
 	wdgButtonNext := widget.NewButton("Next", func() {
-		var selectedSource, selectedAppdata, selectedKey int
 		wdgList.UnselectAll()
 
 		switch step {
@@ -68,7 +72,12 @@ func gui() {
 				appdata = ""
 			}
 
-			doPatch(files[selectedSource], appdata, selectedKey)
+			errorMessages := doPatch(files[selectedSource], appdata, selectedKey)
+			if len(errorMessages) > 0 {
+				wdgLabelTop.SetText("Errors occured:" + strings.Join(errorMessages, "\n"))
+			} else {
+				wdgLabelTop.SetText("Patched!")
+			}
 			break
 		case 3:
 			wndMain.Close()
