@@ -20,12 +20,13 @@ func gui() {
 
 	patcher := patchers.Patcher{osName, nil}
 	tool := patcher.GetTool()
-	files := tool.FindVmoptionsFiles()
-	appdataDirs := patcher.GetTool().FindConfigDirectories()
-	appdataDirs = append([]string{"Patch in place"}, appdataDirs...)
 
+	var appdataDirs []string
+	var files []string
 	bndData := files
 	bndFiles := binding.BindStringList(&bndData)
+
+	wdgProgressBar := widget.NewProgressBarInfinite()
 
 	wdgList := widget.NewListWithData(bndFiles,
 		func() fyne.CanvasObject {
@@ -39,6 +40,7 @@ func gui() {
 		})
 
 	wdgLabelTop := widget.NewLabel("Select source *.vmoptions file from the list")
+
 	step := 0
 	selectedIndex := 0
 	var ptrWdgButtonNext *widget.Button
@@ -79,11 +81,8 @@ func gui() {
 				wdgLabelTop.SetText("Patched!")
 			}
 			break
-		case 3:
-			wndMain.Close()
-			break
 		default:
-			panic("unknown step")
+			wndMain.Close()
 		}
 
 		step++
@@ -98,14 +97,34 @@ func gui() {
 		selectedIndex = id
 	}
 
+	go func() {
+		files = tool.FindVmoptionsFiles()
+
+		appdataDirs = tool.FindConfigDirectories()
+		appdataDirs = append([]string{"Patch in place"}, appdataDirs...)
+
+		bndData = files
+		bndFiles.Reload()
+
+		wdgProgressBar.Stop()
+		wdgProgressBar.Hide()
+
+		if len(files) == 0 {
+			wdgLabelTop.SetText("No *.vmoptions files were found")
+			step = -1
+			wdgButtonNext.Enable()
+			wdgButtonNext.SetText("Exit")
+		}
+	}()
+
+	top := container.NewVBox(wdgLabelTop, wdgProgressBar)
 	content := container.New(
-		layout.NewBorderLayout(wdgLabelTop, wdgButtonNext, nil, nil),
-		wdgLabelTop,
-		container.New(layout.NewMaxLayout(), wdgList),
+		layout.NewBorderLayout(top, wdgButtonNext, nil, nil),
+		top,
 		wdgButtonNext,
+		container.New(layout.NewMaxLayout(), wdgList),
 	)
 
 	wndMain.SetContent(content)
-
 	wndMain.ShowAndRun()
 }
