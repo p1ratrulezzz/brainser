@@ -1,6 +1,9 @@
+//go:build gui
+
 package main
 
 import (
+	"flag"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -10,6 +13,17 @@ import (
 	"jetbrainser/src/patchers"
 	"strings"
 )
+
+func main() {
+	flgNogui := flag.Bool("nogui", false, "Disable gui")
+	flag.Parse()
+
+	if *flgNogui == true {
+		menu_loop()
+	} else {
+		gui()
+	}
+}
 
 func gui() {
 	a := app.New()
