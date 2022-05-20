@@ -4,6 +4,8 @@ type PatcherTool interface {
 	FindVmoptionsFiles() []string
 	FindVmoptionsFilesInConfigDir() []string
 	FindConfigDirectories() []string
+	FindVmoptionsFromProcesses() []ProductInfo
+	GetAppdataDir() string
 }
 
 type Patcher struct {

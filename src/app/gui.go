@@ -74,14 +74,14 @@ func gui() {
 		case 1:
 			selectedAppdata = selectedIndex
 			wdgLabelTop.SetText("Will use " + appdataDirs[selectedAppdata] + "\nSelect key")
-			bndData = KeyList
+			bndData = KeyListNameIndexed
 			bndFiles.Reload()
 			ptrWdgButtonNext.SetText("Patch")
 
 			break
 		case 2:
 			selectedKey = selectedIndex
-			wdgLabelTop.SetText("Patched with " + KeyList[selectedKey])
+			wdgLabelTop.SetText("Patched with " + KeyListSlugIndexed[selectedKey])
 			ptrWdgButtonNext.SetText("Exit")
 			appdata := appdataDirs[selectedAppdata]
 			if selectedAppdata == 0 {

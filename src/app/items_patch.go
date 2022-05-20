@@ -55,7 +55,7 @@ func item_patch() {
 	}
 
 	fmt.Println("Choose the key to use (by your product type)")
-	chosenKeyIndex := inputselect_from_array(KeyList)
+	chosenKeyIndex := inputselect_from_array(KeyListNameIndexed)
 
 	errorMessages := doPatch(sourceVmoptionsPath, appdataSelected, chosenKeyIndex)
 	if len(errorMessages) > 0 {

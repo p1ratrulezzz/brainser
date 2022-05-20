@@ -29,4 +29,8 @@ func init() {
 	}
 
 	stdin = bufio.NewReader(os.Stdin)
+	for slug, name := range KeyList {
+		KeyListSlugIndexed = append(KeyListSlugIndexed, slug)
+		KeyListNameIndexed = append(KeyListNameIndexed, name)
+	}
 }

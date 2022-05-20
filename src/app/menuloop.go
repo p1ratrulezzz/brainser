@@ -9,19 +9,16 @@ import (
 )
 
 func menu_loop() {
-	//item_patch_all()
-	// @fixme: Remove
-	//panic("remove this")
 	const ITEM_SHOWINFO = 0
 	const ITEM_PATCH = 1
-	const ITEM_PATCH_ALL = 2
+	const ITEM_PATCH_PROCS = 2
 	const ITEM_EXIT = 3
 
 	items := map[byte]string{
-		ITEM_SHOWINFO: "Show info",
-		ITEM_PATCH:    "Patch (default flow)",
-		// ITEM_PATCH_ALL: "Smart (but not clever) patch everything",
-		ITEM_EXIT: "Exit",
+		ITEM_SHOWINFO:    "Show info",
+		ITEM_PATCH:       "Patch (default flow)",
+		ITEM_PATCH_PROCS: "Smart (but not clever) patch everything that is running",
+		ITEM_EXIT:        "Exit",
 	}
 
 	itemsKeys := reflect.ValueOf(items).MapKeys()
@@ -54,8 +51,8 @@ func menu_loop() {
 			case ITEM_PATCH:
 				item_patch()
 				break
-			case ITEM_PATCH_ALL:
-				item_patch_all()
+			case ITEM_PATCH_PROCS:
+				item_patch_procs()
 				break
 			default:
 				fmt.Println("Incorrect choice")

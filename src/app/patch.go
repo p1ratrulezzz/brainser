@@ -15,6 +15,9 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) []strin
 	destinationDir := destinationPath
 	if destinationDir == "" {
 		destinationDir = filepath.Dir(vmoptionsPath)
+	} else if _, err := os.Stat(destinationDir); err != nil {
+		fmt.Println("Folder " + destinationDir + " doesn't exists. Will create it")
+		os.Mkdir(destinationDir, 0755)
 	}
 
 	jarname := filepath.Join(destinationDir, agentName)
@@ -48,7 +51,7 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) []strin
 		return errorMessages
 	}
 
-	keyPath := filepath.Join(destinationDir, KeyList[keyIndex]+".key")
+	keyPath := filepath.Join(destinationDir, KeyListSlugIndexed[keyIndex]+".key")
 	fpKey, err := os.Create(keyPath)
 	keyContent := getResource("universal.key")
 	fpKey.Write(keyContent)

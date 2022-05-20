@@ -1,25 +1,30 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"hash/adler32"
 	"jetbrainser/src/cryptor"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 )
 
-var KeyList = []string{
-	"appcode",
-	"clion",
-	"datagrip",
-	"goland",
-	"idea",
-	"phpstorm",
-	"pycharm",
-	"rider",
-	"rubymine",
-	"webstorm",
+var KeyList = map[string]string{
+	"appcode":  "AppCode",
+	"clion":    "Clion",
+	"datagrip": "Datagrip",
+	"goland":   "GoLand",
+	"idea":     "Idea",
+	"phpstorm": "PhpStorm",
+	"pycharm":  "PyCharm",
+	"rider":    "Rider",
+	"rubymine": "RubyMine",
+	"webstorm": "WebStorm",
 }
+
+var KeyListSlugIndexed, KeyListNameIndexed []string
 
 func delay() {
 	fmt.Print("Press 'Enter' to continue...")
@@ -80,4 +85,26 @@ func cleanupVmoptions(vmoptionsContent []byte) string {
 	}
 
 	return vmoptionsContentString
+}
+
+func getKeyIndexBySlug(slug string) (int, error) {
+	for i, v := range KeyListSlugIndexed {
+		if v == slug {
+			return i, nil
+		}
+	}
+	return 0, errors.New("there is no key for " + slug)
+}
+
+func fileHash(path string) (uint32, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return 0, err
+	}
+
+	return binaryHash(data), nil
+}
+
+func binaryHash(data []byte) uint32 {
+	return adler32.Checksum(data)
 }
