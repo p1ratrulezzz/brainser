@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"jetbrainser/src/patchers"
 	"path/filepath"
+	"strings"
 )
 
 func item_patch() {
@@ -54,7 +55,10 @@ func item_patch() {
 	}
 
 	fmt.Println("Choose the key to use (by your product type)")
-	chosenKeyIndex := inputselect_from_array(KeyList)
+	chosenKeyIndex := inputselect_from_array(KeyListNameIndexed)
 
-	doPatch(sourceVmoptionsPath, appdataSelected, chosenKeyIndex)
+	errorMessages := doPatch(sourceVmoptionsPath, appdataSelected, chosenKeyIndex)
+	if len(errorMessages) > 0 {
+		fmt.Println("Errors occured" + strings.Join(errorMessages, "\n"))
+	}
 }

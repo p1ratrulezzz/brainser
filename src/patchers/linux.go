@@ -8,7 +8,7 @@ type PatcherToolLinux struct {
 
 func (p *PatcherToolLinux) FindVmoptionsFiles() []string {
 	homeDir, _ := os.UserHomeDir()
-	files := findVmoptionsFiles([]string{"/opt", homeDir + "/.local/share/JetBrains"})
+	files := findVmoptionsFiles([]string{"/snap", "/opt", homeDir + "/.local/share/JetBrains"})
 
 	return files
 }

@@ -32,11 +32,11 @@ func findAppdataDirs(root string) []string {
 		"idea":     {`(?i)\.?idea[0-9]{4}[0-9\.]+`, `(?mi)\.intellijidea[0-9]{4}[0-9\.]+`},
 		"goland":   {`(?i)\.?goland[0-9]{4}[0-9\.]+`},
 		"pycharm":  {`(?i)\.?pycharm[0-9]{4}[0-9\.]+`},
-		"datagrip":  {`(?i)\.?datagrip[0-9]{4}[0-9\.]+`},
-		"rider":  {`(?i)\.?rider[0-9]{4}[0-9\.]+`},
-		"rubymine":  {`(?i)\.?rubymine[0-9]{4}[0-9\.]+`},
-		"webstorm":  {`(?i)\.?webstorm[0-9]{4}[0-9\.]+`},
-		"clion":  {`(?i)\.?clion[0-9]{4}[0-9\.]+`},
+		"datagrip": {`(?i)\.?datagrip[0-9]{4}[0-9\.]+`},
+		"rider":    {`(?i)\.?rider[0-9]{4}[0-9\.]+`},
+		"rubymine": {`(?i)\.?rubymine[0-9]{4}[0-9\.]+`},
+		"webstorm": {`(?i)\.?webstorm[0-9]{4}[0-9\.]+`},
+		"clion":    {`(?i)\.?clion[0-9]{4}[0-9\.]+`},
 	}
 
 	var files []string
