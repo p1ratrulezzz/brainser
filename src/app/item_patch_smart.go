@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"jetbrainser/src/patchers"
+	"strings"
 )
 
 func item_patch_procs() {
@@ -28,7 +29,6 @@ func item_patch_procs() {
 	fmt.Println("Press enter to continue...")
 	stdin.ReadLine()
 
-	agentHash := binaryHash(getResource(agentName))
 	for _, info := range allProducts {
 		fmt.Printf("Found product %s\n", info.ProductName)
 
@@ -38,27 +38,9 @@ func item_patch_procs() {
 			continue
 		}
 
-		failedMessage := ""
-		for _, agentFile := range info.Agents {
-			hashcrc, err := fileHash(agentFile)
-			if err != nil {
-				failedMessage = "Error calculating hash for agent. Skipping"
-				break
-			}
-
-			if hashcrc == agentHash {
-				failedMessage = "This product is already patched"
-				break
-			}
-		}
-
-		if len(failedMessage) > 0 {
-			fmt.Println(failedMessage)
-			continue
-		}
-
 		fmt.Println("Patching...")
-		doPatch(info.VmoptionsSourcePath, info.VmoptionsDestinationPath, keyIndex)
+		errorMessages := doPatch(info.VmoptionsSourcePath, info.VmoptionsDestinationPath, keyIndex)
+		fmt.Println(strings.Join(errorMessages, "\n"))
 	}
 
 	fmt.Println("All products patched! Close all your products and run again.")

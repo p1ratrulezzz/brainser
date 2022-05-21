@@ -21,16 +21,6 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) []strin
 	}
 
 	jarname := filepath.Join(destinationDir, agentName)
-	if _, err := os.Stat(jarname); err == nil {
-		fmt.Printf("File %s already exists, but will be overwritten\n", jarname)
-	}
-
-	jarfileContent := getResource(agentName)
-	err := os.WriteFile(jarname, jarfileContent, 0644)
-	if err != nil {
-		errorMessages = append(errorMessages, fmt.Sprintf("File %s can't be written", jarname))
-		return errorMessages
-	}
 
 	vmoptionsName := filepath.Base(vmoptionsPath)
 	vmoptionsNewPath := filepath.Join(destinationDir, vmoptionsName)
@@ -46,7 +36,19 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) []strin
 	if !checkAgentExists(agents) {
 		vmoptionsContentString += "-javaagent:" + jarname
 	} else {
-		fmt.Println("This product is already patched")
+		errorMessages = append(errorMessages, "This product is already patched")
+		return errorMessages
+	}
+
+	if _, err := os.Stat(jarname); err == nil {
+		fmt.Printf("File %s already exists, but will be overwritten\n", jarname)
+	}
+
+	jarfileContent := getResource(agentName)
+	err := os.WriteFile(jarname, jarfileContent, 0644)
+	if err != nil {
+		errorMessages = append(errorMessages, fmt.Sprintf("File %s can't be written", jarname))
+		return errorMessages
 	}
 
 	err = os.WriteFile(vmoptionsNewPath, []byte(vmoptionsContentString), 0644)
