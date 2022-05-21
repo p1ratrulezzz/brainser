@@ -42,8 +42,12 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) []strin
 		vmoptionsContent, _ = os.ReadFile(vmoptionsNewPath)
 	}
 
-	vmoptionsContentString := cleanupVmoptions(vmoptionsContent)
-	vmoptionsContentString += "-javaagent:" + jarname
+	vmoptionsContentString, agents := cleanupVmoptions(vmoptionsContent)
+	if !checkAgentExists(agents) {
+		vmoptionsContentString += "-javaagent:" + jarname
+	} else {
+		fmt.Println("This product is already patched")
+	}
 
 	err = os.WriteFile(vmoptionsNewPath, []byte(vmoptionsContentString), 0644)
 	if err != nil {

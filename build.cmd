@@ -1,4 +1,4 @@
-SET CGO_ENABLED=1
+SET CGO_ENABLED=0
 SET BINARY_NAME=jetbrainser
 SET OUTDIR=bin
 SET SRCPATH=jetbrainser/src/app
@@ -13,20 +13,20 @@ SET GOARCH=amd64
 SET GOOS=windows
 SET CC=x86_64-pc-cygwin-gcc
 SET CXX=x86_64-pc-cygwin-g++
-go build -o "%OUTDIR%/%BINARY_NAME%-win-x64.exe" "%SRCPATH%"
+go build -tags console -o "%OUTDIR%/%BINARY_NAME%-win-x64.exe" "%SRCPATH%"
 
 SET GOARCH=arm64
 SET GOOS=linux
-go build -o "%OUTDIR%/%BINARY_NAME%-linux-arm64" "%SRCPATH%"
+go build -tags console -o "%OUTDIR%/%BINARY_NAME%-linux-arm64" "%SRCPATH%"
 
 SET GOARCH=arm64
 SET GOOS=windows
-go build -o "%OUTDIR%/%BINARY_NAME%-win-arm64.exe" "%SRCPATH%"
+go build -tags console -o "%OUTDIR%/%BINARY_NAME%-win-arm64.exe" "%SRCPATH%"
 
 SET GOARCH=arm64
 SET GOOS=darwin
-go build -o "%OUTDIR%/%BINARY_NAME%-osx-arm64" "%SRCPATH%"
+go build -tags console -o "%OUTDIR%/%BINARY_NAME%-osx-arm64" "%SRCPATH%"
 
 SET GOARCH=amd64
 SET GOOS=darwin
-go build -o "%OUTDIR%/%BINARY_NAME%-osx-amd64" "%SRCPATH%"
+go build -tags console -o "%OUTDIR%/%BINARY_NAME%-osx-amd64" "%SRCPATH%"

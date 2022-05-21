@@ -60,10 +60,12 @@ func getResource(path string) []byte {
 	return resData
 }
 
-func cleanupVmoptions(vmoptionsContent []byte) string {
+func cleanupVmoptions(vmoptionsContent []byte) (string, []string) {
 	vmoptionsContentString := string(vmoptionsContent)
 	offset := 0
 	needle := "-javaagent:"
+	var agents []string
+
 	for pos := 0; offset < len(vmoptionsContentString) && pos != -1; {
 		pos = strings.Index(vmoptionsContentString[offset:], needle)
 		if pos == -1 {
@@ -75,6 +77,16 @@ func cleanupVmoptions(vmoptionsContent []byte) string {
 		pos += offsettmp
 
 		if vmoptionsContentString[(pos-1):pos] != "#" {
+			lineEndPos := strings.Index(vmoptionsContentString[pos:], "\n")
+			if lineEndPos == -1 {
+				lineEndPos = len(vmoptionsContentString)
+			} else {
+				lineEndPos += pos
+			}
+
+			agent := vmoptionsContentString[pos+len(needle) : lineEndPos]
+			agent = strings.Trim(agent, "\n\r\t ")
+			agents = append(agents, agent)
 			vmoptionsContentString = vmoptionsContentString[0:pos] + "#" + vmoptionsContentString[pos:]
 			offset--
 		}
@@ -84,7 +96,7 @@ func cleanupVmoptions(vmoptionsContent []byte) string {
 		vmoptionsContentString += "\n"
 	}
 
-	return vmoptionsContentString
+	return vmoptionsContentString, agents
 }
 
 func getKeyIndexBySlug(slug string) (int, error) {
@@ -107,4 +119,22 @@ func fileHash(path string) (uint32, error) {
 
 func binaryHash(data []byte) uint32 {
 	return adler32.Checksum(data)
+}
+
+func checkAgentExists(agentPaths []string) bool {
+	agentData := getResource(agentName)
+	agentHash := binaryHash(agentData)
+
+	for _, agentPath := range agentPaths {
+		hash, err := fileHash(agentPath)
+		if err != nil {
+			continue
+		}
+
+		if hash == agentHash {
+			return true
+		}
+	}
+
+	return false
 }

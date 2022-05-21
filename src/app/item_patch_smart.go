@@ -14,6 +14,11 @@ func item_patch_procs() {
 	tool := patcher.GetTool()
 	allProducts := tool.FindVmoptionsFromProcesses()
 
+	if len(allProducts) == 0 {
+		fmt.Println("No running products found")
+		return
+	}
+
 	fmt.Printf("Found %d products\n", len(allProducts))
 	fmt.Println("Will patch these products:")
 	for _, info := range allProducts {
@@ -57,5 +62,4 @@ func item_patch_procs() {
 	}
 
 	fmt.Println("All products patched! Close all your products and run again.")
-	delay()
 }

@@ -82,3 +82,36 @@ func (p *PatcherToolAbstract) FindVmoptionsFromProcesses() []ProductInfo {
 
 	return infos
 }
+
+func (p *PatcherToolAbstract) FileExists(path string) bool {
+	_, err := os.Stat(path)
+
+	return err == nil
+}
+
+func (p *PatcherToolAbstract) GetExeList() *map[string]string {
+	var exeListPtr *map[string]string
+
+	func() {
+		if exeListPtr != nil {
+			return
+		}
+
+		var exeList = map[string]string{
+			"appcode":  "AppCode",
+			"clion":    "Clion",
+			"datagrip": "Datagrip",
+			"goland":   "GoLand",
+			"idea":     "Idea",
+			"phpstorm": "PhpStorm",
+			"pycharm":  "PyCharm",
+			"rider":    "Rider",
+			"rubymine": "RubyMine",
+			"webstorm": "WebStorm",
+		}
+
+		exeListPtr = &exeList
+	}()
+
+	return exeListPtr
+}
