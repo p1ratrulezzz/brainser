@@ -12,15 +12,11 @@ type PatcherToolWindows struct {
 	*PatcherToolAbstract
 }
 
-type ProductInfoJsonLaunch struct {
-	VmOptionsFilePath string
-}
-
 type ProductInfoJson struct {
 	BuildNumber       string
 	DataDirectoryName string
 	Name              string
-	Launch            []ProductInfoJsonLaunch
+	Launch            []map[string]string `json:"launch"`
 }
 
 func (p *PatcherToolWindows) FindVmoptionsFiles() []string {
@@ -54,8 +50,6 @@ func (p *PatcherToolWindows) parseProductInfoJson(path string) (*ProductInfoJson
 	if err != nil {
 		return nil, err
 	}
-
-	_ = err
 
 	return &dest, nil
 }
@@ -95,12 +89,12 @@ func (p *PatcherToolWindows) FindVmoptionsFromProcesses() []ProductInfo {
 		}
 
 		infoJson, err := p.parseProductInfoJson(productInfoFilePath)
-		if err != nil || len(infoJson.Launch) == 0 {
+		if err != nil && len(infoJson.Launch) == 0 {
 			continue
 		}
 
 		var info ProductInfo
-		info.VmoptionsSourcePath = filepath.Join(productPath, infoJson.Launch[0].VmOptionsFilePath)
+		info.VmoptionsSourcePath = filepath.Join(productPath, infoJson.Launch[0]["vmOptionsFilePath"])
 		info.VmoptionsDestinationPath = filepath.Join(p.GetAppdataDir(), "JetBrains", infoJson.DataDirectoryName)
 		info.ProductFolder = infoJson.DataDirectoryName
 		info.ProductName = infoJson.Name

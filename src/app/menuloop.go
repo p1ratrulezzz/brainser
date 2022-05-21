@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/inancgumus/screen"
-	"reflect"
 	"sort"
 	"strconv"
 )
@@ -21,8 +20,12 @@ func menu_loop() {
 		ITEM_EXIT:        "Exit",
 	}
 
-	itemsKeys := reflect.ValueOf(items).MapKeys()
-	sort.SliceStable(itemsKeys, func(i, j int) bool {
+	var itemKeysIndex []byte
+	for i, _ := range items {
+		itemKeysIndex = append(itemKeysIndex, i)
+	}
+
+	sort.SliceStable(itemKeysIndex, func(i, j int) bool {
 		return i < j
 	})
 
@@ -32,8 +35,8 @@ func menu_loop() {
 			screen.Clear()
 			screen.MoveTopLeft()
 
-			for _, i := range itemsKeys {
-				fmt.Printf("%d. %s\n", i, items[byte(i.Uint())])
+			for _, i := range itemKeysIndex {
+				fmt.Printf("%d. %s\n", i, items[i])
 			}
 
 			var inbuf []byte

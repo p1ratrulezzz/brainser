@@ -98,16 +98,17 @@ func (p *PatcherToolAbstract) GetExeList() *map[string]string {
 		}
 
 		var exeList = map[string]string{
-			"appcode":  "AppCode",
-			"clion":    "Clion",
-			"datagrip": "Datagrip",
-			"goland":   "GoLand",
-			"idea":     "Idea",
-			"phpstorm": "PhpStorm",
-			"pycharm":  "PyCharm",
-			"rider":    "Rider",
-			"rubymine": "RubyMine",
-			"webstorm": "WebStorm",
+			"appcode":   "AppCode",
+			"clion":     "Clion",
+			"datagrip":  "Datagrip",
+			"dataspell": "DataSpell",
+			"goland":    "GoLand",
+			"idea":      "Idea",
+			"phpstorm":  "PhpStorm",
+			"pycharm":   "PyCharm",
+			"rider":     "Rider",
+			"rubymine":  "RubyMine",
+			"webstorm":  "WebStorm",
 		}
 
 		exeListPtr = &exeList
