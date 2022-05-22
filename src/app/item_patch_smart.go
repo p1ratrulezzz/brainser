@@ -13,6 +13,7 @@ func item_patch_procs() {
 	fmt.Println("Searching for products...")
 	patcher := patchers.Patcher{osName, nil}
 	tool := patcher.GetTool()
+
 	allProducts := tool.FindVmoptionsFromProcesses()
 
 	if len(allProducts) == 0 {
@@ -29,19 +30,27 @@ func item_patch_procs() {
 	fmt.Println("Press enter to continue...")
 	stdin.ReadLine()
 
+	messages := doAutoPatch(tool, allProducts)
+	fmt.Println(strings.Join(messages, "\n"))
+}
+
+func doAutoPatch(tool patchers.PatcherTool, allProducts []patchers.ProductInfo) []string {
+	var messages []string
+
 	for _, info := range allProducts {
-		fmt.Printf("Found product %s\n", info.ProductName)
+		messages = append(messages, fmt.Sprintf("Found product %s\n", info.ProductName))
 
 		keyIndex, err := getKeyIndexBySlug(info.ProductSlug)
 		if err != nil {
-			fmt.Printf("There is no key for %s\n", info.ProductName)
+			messages = append(messages, fmt.Sprintf("There is no key for %s\n", info.ProductName))
 			continue
 		}
 
-		fmt.Println("Patching...")
+		messages = append(messages, "Patching...")
 		errorMessages := doPatch(info.VmoptionsSourcePath, info.VmoptionsDestinationPath, keyIndex)
-		fmt.Println(strings.Join(errorMessages, "\n"))
+		messages = append(messages, errorMessages...)
 	}
 
-	fmt.Println("All products patched! Close all your products and run again.")
+	messages = append(messages, "All products patched! Close all your products and run again.")
+	return messages
 }
