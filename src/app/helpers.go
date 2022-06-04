@@ -77,7 +77,7 @@ func cleanupVmoptions(vmoptionsContent []byte) (string, []string) {
 		offset += pos + len(needle)
 		pos += offsettmp
 
-		if pos > 0 && vmoptionsContentString[(pos-1):pos] != "#" {
+		if pos == 0 || vmoptionsContentString[(pos-1):pos] != "#" {
 			lineEndPos := strings.Index(vmoptionsContentString[pos:], "\n")
 			if lineEndPos == -1 {
 				lineEndPos = len(vmoptionsContentString)
