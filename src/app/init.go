@@ -11,7 +11,6 @@ import (
 
 var osName string
 
-//go:embed resources_enc
 var resources embed.FS
 
 var stdin *bufio.Reader
