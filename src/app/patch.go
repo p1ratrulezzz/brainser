@@ -9,8 +9,13 @@ import (
 
 const agentName = "agent.jar"
 
-func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) []string {
+func doPatch(vmoptionsPath string, destinationPath string, agentDir string, keyIndex int) []string {
+	cleanupOnly := globalvarCleanupMode
 	var errorMessages []string
+
+	if cleanupOnly {
+		errorMessages = append(errorMessages, fmt.Sprintf("Working in cleanup mode ON! Will not patch anything, only clean"))
+	}
 
 	destinationDir := destinationPath
 	if destinationDir == "" {
@@ -20,7 +25,11 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) []strin
 		os.Mkdir(destinationDir, 0755)
 	}
 
-	jarname := filepath.Join(destinationDir, agentName)
+	if agentDir == "" {
+		agentDir = destinationDir
+	}
+
+	jarname := filepath.Join(agentDir, agentName)
 
 	vmoptionsName := filepath.Base(vmoptionsPath)
 	vmoptionsNewPath := filepath.Join(destinationDir, vmoptionsName)
@@ -33,27 +42,37 @@ func doPatch(vmoptionsPath string, destinationPath string, keyIndex int) []strin
 	}
 
 	vmoptionsContentString, agents := cleanupVmoptions(vmoptionsContent)
-	if !checkAgentExists(agents) {
-		vmoptionsContentString += "-javaagent:" + jarname
-	} else {
-		errorMessages = append(errorMessages, "This product is already patched")
-		return errorMessages
+	if !cleanupOnly {
+		if !checkAgentExists(agents) {
+			vmoptionsContentString += "-javaagent:" + jarname
+		} else {
+			errorMessages = append(errorMessages, "This product is already patched")
+			return errorMessages
+		}
 	}
 
-	if _, err := os.Stat(jarname); err == nil {
-		fmt.Printf("File %s already exists, but will be overwritten\n", jarname)
-	}
+	var err error
+	if !cleanupOnly {
+		if _, err = os.Stat(jarname); err == nil {
+			fmt.Printf("File %s already exists, but will be overwritten\n", jarname)
+		}
 
-	jarfileContent := getResource(agentName)
-	err := os.WriteFile(jarname, jarfileContent, 0644)
-	if err != nil {
-		errorMessages = append(errorMessages, fmt.Sprintf("File %s can't be written", jarname))
-		return errorMessages
+		jarfileContent := getResource(agentName)
+		err := os.WriteFile(jarname, jarfileContent, 0644)
+		if err != nil {
+			errorMessages = append(errorMessages, fmt.Sprintf("File %s can't be written", jarname))
+			return errorMessages
+		}
 	}
 
 	err = os.WriteFile(vmoptionsNewPath, []byte(vmoptionsContentString), 0644)
 	if err != nil {
 		errorMessages = append(errorMessages, fmt.Sprintf("Writing error. Error: "+err.Error()))
+		return errorMessages
+	}
+
+	if cleanupOnly {
+		errorMessages = append(errorMessages, fmt.Sprintf("Vmoptions cleanup finished!"))
 		return errorMessages
 	}
 
