@@ -7,6 +7,10 @@ import (
 )
 
 func item_patch_procs() {
+	if globalvarCleanupMode {
+		fmt.Println("Attention! Working in cleanup mode. This will not actually patch anything, just cleanup other agents! Disable cleanup mode to patch")
+	}
+
 	fmt.Println("Run all products that you want to patch and press enter...")
 	stdin.ReadLine()
 
@@ -47,7 +51,7 @@ func doAutoPatch(tool patchers.PatcherTool, allProducts []patchers.ProductInfo) 
 		}
 
 		messages = append(messages, "Patching...")
-		errorMessages := doPatch(info.VmoptionsSourcePath, info.VmoptionsDestinationPath, keyIndex)
+		errorMessages := doPatch(info.VmoptionsSourcePath, info.VmoptionsDestinationPath, info.AgentDir, keyIndex)
 		messages = append(messages, errorMessages...)
 	}
 

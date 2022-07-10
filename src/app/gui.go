@@ -106,7 +106,7 @@ func gui() {
 				appdata = ""
 			}
 
-			errorMessages := doPatch(files[selectedSource], appdata, selectedKey)
+			errorMessages := doPatch(files[selectedSource], appdata, "", selectedKey)
 			if len(errorMessages) > 0 {
 				wdgLabelTop.SetText("Errors occured:" + strings.Join(errorMessages, "\n"))
 			} else {
@@ -209,8 +209,40 @@ func gui() {
 
 	wdgButtonRescan.OnTapped()
 
+	wdgButtonInfo := widget.NewButton("Info", func() {
+		wdgLabel := widget.NewLabel(item_show_info_get_text())
+		var wdgPopupModalPtr *widget.PopUp
+		btnClosePopup := widget.NewButton("Close", func() {
+			wdgPopupModalPtr.Hide()
+		})
+
+		content := container.New(layout.NewVBoxLayout(), wdgLabel, btnClosePopup)
+		wdgPopupModal := widget.NewModalPopUp(content, wndMain.Canvas())
+		wdgPopupModalPtr = wdgPopupModal
+
+		wdgPopupModal.Show()
+	})
+
+	var wdgButtonCleanupModeSwitchPtr *widget.Button
+	wdgButtonCleanupModeSwitch := widget.NewButton("Cleanup mode: Off", func() {
+		globalvarCleanupMode = !globalvarCleanupMode
+		cleanupModeSuffix := ": Off"
+		if globalvarCleanupMode {
+			cleanupModeSuffix = ": On"
+		}
+
+		wdgButtonCleanupModeSwitchPtr.SetText("Cleanup mode" + cleanupModeSuffix)
+	})
+
+	wdgButtonCleanupModeSwitchPtr = wdgButtonCleanupModeSwitch
+
+	wdgButtonExit := widget.NewButton("Exit", func() {
+		wndMain.Close()
+		a.Quit()
+	})
+
 	top := container.NewVBox(wdgLabelTop, wdgProgressBar)
-	buttons := container.NewAdaptiveGrid(3, wdgButtonRescan, wdgButtonManual, wdgButtonNext)
+	buttons := container.NewAdaptiveGrid(6, wdgButtonInfo, wdgButtonCleanupModeSwitch, wdgButtonRescan, wdgButtonManual, wdgButtonNext, wdgButtonExit)
 	list := container.New(layout.NewMaxLayout(), wdgList, wdgListText)
 	content := container.New(
 		layout.NewBorderLayout(top, buttons, nil, nil),

@@ -7,4 +7,5 @@ type ProductInfo struct {
 	Agents                   []string
 	VmoptionsSourcePath      string
 	VmoptionsDestinationPath string
+	AgentDir                 string
 }

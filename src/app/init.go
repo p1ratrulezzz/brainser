@@ -16,7 +16,10 @@ var resources embed.FS
 
 var stdin *bufio.Reader
 
+var globalvarCleanupMode bool
+
 func init() {
+	globalvarCleanupMode = false
 	osName = runtime.GOOS
 	os_supported := map[string]bool{
 		"windows": true,

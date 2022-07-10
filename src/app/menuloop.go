@@ -12,12 +12,14 @@ func menu_loop() {
 	const ITEM_PATCH = 1
 	const ITEM_PATCH_PROCS = 2
 	const ITEM_EXIT = 3
+	const ITEM_CLEANUP = 4
 
 	items := map[byte]string{
 		ITEM_SHOWINFO:    "Show info",
 		ITEM_PATCH:       "Patch (default flow)",
 		ITEM_PATCH_PROCS: "Smart (but not clever) patch everything that is running",
 		ITEM_EXIT:        "Exit",
+		ITEM_CLEANUP:     "Cleanup mode",
 	}
 
 	var itemKeysIndex []byte
@@ -35,6 +37,13 @@ func menu_loop() {
 			screen.Clear()
 			screen.MoveTopLeft()
 
+			cleanupSuffix := ": Off"
+			if globalvarCleanupMode {
+				cleanupSuffix = ": On"
+			}
+
+			items[ITEM_CLEANUP] = "Cleanup mode: " + cleanupSuffix
+
 			for _, i := range itemKeysIndex {
 				fmt.Printf("%d. %s\n", i, items[i])
 			}
@@ -47,9 +56,10 @@ func menu_loop() {
 				break
 			}
 
+			needsDelay := true
 			switch selected_item {
 			case ITEM_SHOWINFO:
-				item_show_info()
+				print(item_show_info_get_text())
 				break
 			case ITEM_PATCH:
 				item_patch()
@@ -57,12 +67,18 @@ func menu_loop() {
 			case ITEM_PATCH_PROCS:
 				item_patch_procs()
 				break
+			case ITEM_CLEANUP:
+				globalvarCleanupMode = !globalvarCleanupMode
+				needsDelay = false
+				break
 			default:
 				fmt.Println("Incorrect choice")
 				break
 			}
 
-			delay()
+			if needsDelay {
+				delay()
+			}
 		}
 	}()
 }
