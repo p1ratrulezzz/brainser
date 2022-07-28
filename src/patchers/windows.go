@@ -1,7 +1,6 @@
 package patchers
 
 import (
-	"encoding/json"
 	"github.com/shirou/gopsutil/process"
 	"os"
 	"path/filepath"
@@ -17,6 +16,7 @@ type ProductInfoJson struct {
 	BuildNumber       string
 	DataDirectoryName string
 	Name              string
+	ProductCode       string              `json:"productCode"`
 	Launch            []map[string]string `json:"launch"`
 }
 
@@ -38,21 +38,6 @@ func (p *PatcherToolWindows) FindVmoptionsFiles() []string {
 	files := findVmoptionsFiles(programfilesDirectories)
 
 	return files
-}
-
-func (p *PatcherToolWindows) parseProductInfoJson(path string) (*ProductInfoJson, error) {
-	data, err := os.ReadFile(path)
-
-	if err != nil {
-		return nil, err
-	}
-	var dest ProductInfoJson
-	err = json.Unmarshal(data, &dest)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dest, nil
 }
 
 func (p *PatcherToolWindows) FindVmoptionsFromProcesses() []ProductInfo {
@@ -100,6 +85,7 @@ func (p *PatcherToolWindows) FindVmoptionsFromProcesses() []ProductInfo {
 		info.ProductFolder = infoJson.DataDirectoryName
 		info.ProductName = infoJson.Name
 		info.ProductSlug = strings.ToLower(exeName)
+		info.BuildNumber = infoJson.BuildNumber
 
 		agentPath := info.VmoptionsDestinationPath
 
