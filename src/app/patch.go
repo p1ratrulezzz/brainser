@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const agentName = "agent.jar"
+
+var agentStrAdditional []string
 
 func doPatch(vmoptionsPath string, destinationPath string, agentDir string, keyIndex int) []string {
 	cleanupOnly := globalvarCleanupMode
@@ -42,26 +45,37 @@ func doPatch(vmoptionsPath string, destinationPath string, agentDir string, keyI
 	}
 
 	vmoptionsContentString, agents := cleanupVmoptions(vmoptionsContent)
+	agentsExist := checkAgentExists(agents)
 	if !cleanupOnly {
-		if !checkAgentExists(agents) {
+		if !agentsExist {
 			vmoptionsContentString += "-javaagent:" + jarname
 		} else {
+			vmoptionsContentString = string(vmoptionsContent)
 			errorMessages = append(errorMessages, "This product is already patched")
-			return errorMessages
 		}
 	}
 
 	var err error
 	if !cleanupOnly {
-		if _, err = os.Stat(jarname); err == nil {
-			fmt.Printf("File %s already exists, but will be overwritten\n", jarname)
+		// Add additional strings
+		for _, agentStrValue := range agentStrAdditional {
+			if strings.Index(vmoptionsContentString, agentStrValue) == -1 {
+				vmoptionsContentString += "\n" + agentStrValue
+				errorMessages = append(errorMessages, "Adding string "+agentStrValue)
+			}
 		}
 
-		jarfileContent := getResource(agentName)
-		err := os.WriteFile(jarname, jarfileContent, 0644)
-		if err != nil {
-			errorMessages = append(errorMessages, fmt.Sprintf("File %s can't be written", jarname))
-			return errorMessages
+		if _, err = os.Stat(jarname); err == nil {
+			errorMessages = append(errorMessages, fmt.Sprintf("File %s already exists, but will be overwritten\n", jarname))
+		}
+
+		if !agentsExist {
+			jarfileContent := getResource(agentName)
+			err := os.WriteFile(jarname, jarfileContent, 0644)
+			if err != nil {
+				errorMessages = append(errorMessages, fmt.Sprintf("File %s can't be written", jarname))
+				return errorMessages
+			}
 		}
 	}
 
@@ -73,6 +87,10 @@ func doPatch(vmoptionsPath string, destinationPath string, agentDir string, keyI
 
 	if cleanupOnly {
 		errorMessages = append(errorMessages, fmt.Sprintf("Vmoptions cleanup finished!"))
+		return errorMessages
+	}
+
+	if agentsExist {
 		return errorMessages
 	}
 

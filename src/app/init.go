@@ -36,4 +36,8 @@ func init() {
 		KeyListSlugIndexed = append(KeyListSlugIndexed, slug)
 		KeyListNameIndexed = append(KeyListNameIndexed, name)
 	}
+
+	// Init additional strings
+	agentStrAdditional = append(agentStrAdditional, "--add-opens=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED")
+	agentStrAdditional = append(agentStrAdditional, "--add-opens=java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED")
 }

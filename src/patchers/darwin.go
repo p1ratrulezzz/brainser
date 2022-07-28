@@ -75,6 +75,7 @@ func (p *PatcherToolDarwin) FindVmoptionsFromProcesses() []ProductInfo {
 				var info ProductInfo
 				info.ProductSlug = product
 				info.ProductName = exeList[product]
+				// @todo: Parse product-info.json file and fill build number
 				info.ProductFolder = productPath
 				info.VmoptionsSourcePath = filepath.Join(productPath, "bin", product+".vmoptions")
 				info.VmoptionsDestinationPath = filepath.Join(p.GetAppdataDir(), "JetBrains", pathSelector)
