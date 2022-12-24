@@ -1,7 +1,7 @@
 package patchers
 
 import (
-	"github.com/shirou/gopsutil/process"
+	"github.com/shirou/gopsutil/v3/process"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,12 +12,18 @@ type PatcherToolWindows struct {
 	*PatcherToolAbstract
 }
 
+type ProductInfoJsonLaunch struct {
+	os                string
+	launcherPath      string
+	vmOptionsFilePath string
+}
+
 type ProductInfoJson struct {
 	BuildNumber       string
 	DataDirectoryName string
 	Name              string
-	ProductCode       string              `json:"productCode"`
-	Launch            []map[string]string `json:"launch"`
+	ProductCode       string           `json:"productCode"`
+	Launch            []map[string]any `json:"launch"`
 }
 
 func (p *PatcherToolWindows) FindVmoptionsFiles() []string {
@@ -75,12 +81,12 @@ func (p *PatcherToolWindows) FindVmoptionsFromProcesses() []ProductInfo {
 		}
 
 		infoJson, err := p.parseProductInfoJson(productInfoFilePath)
-		if err != nil && len(infoJson.Launch) == 0 {
+		if err != nil || len(infoJson.Launch) == 0 {
 			continue
 		}
 
 		var info ProductInfo
-		info.VmoptionsSourcePath = filepath.Join(productPath, infoJson.Launch[0]["vmOptionsFilePath"])
+		info.VmoptionsSourcePath = filepath.Join(productPath, infoJson.Launch[0]["vmOptionsFilePath"].(string))
 		info.VmoptionsDestinationPath = filepath.Join(p.GetAppdataDir(), "JetBrains", infoJson.DataDirectoryName)
 		info.ProductFolder = infoJson.DataDirectoryName
 		info.ProductName = infoJson.Name
