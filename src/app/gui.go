@@ -11,6 +11,9 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/hajimehoshi/go-mp3"
+	"github.com/hajimehoshi/oto/v2"
+	"io"
 	"jetbrainser/src/patchers"
 	"math/rand"
 	"strings"
@@ -241,18 +244,69 @@ func gui() {
 		a.Quit()
 	})
 
+	wdgMusicButton := addMusicButton()
+
 	top := container.NewVBox(wdgLabelTop, wdgProgressBar)
-	buttons := container.NewAdaptiveGrid(6, wdgButtonInfo, wdgButtonCleanupModeSwitch, wdgButtonRescan, wdgButtonManual, wdgButtonNext, wdgButtonExit)
+
+	buttons1 := container.NewAdaptiveGrid(2, wdgButtonNext, wdgButtonRescan)
+	buttons2 := container.NewAdaptiveGrid(2, wdgButtonCleanupModeSwitch, wdgButtonManual)
+	buttons3 := container.NewAdaptiveGrid(3, wdgMusicButton, wdgButtonInfo, wdgButtonExit)
+
+	buttonsBox := container.NewVBox(buttons1, buttons2, buttons3)
 	list := container.New(layout.NewMaxLayout(), wdgList, wdgListText)
 	content := container.New(
-		layout.NewBorderLayout(top, buttons, nil, nil),
+		layout.NewBorderLayout(top, buttonsBox, nil, nil),
 		top,
-		buttons,
 		list,
+		buttonsBox,
 	)
 
 	wndMain.SetContent(content)
 	wndMain.ShowAndRun()
+}
+
+func addMusicButton() *widget.Button {
+	noButton := widget.NewButton("", func() {
+
+	})
+
+	noButton.Hide()
+
+	player, decodedMp3, err := initMusic()
+	if err != nil {
+		return noButton
+	}
+
+	musicEnabled := true
+	go musicRestartRoutine(player, decodedMp3, &musicEnabled)
+
+	wdgButtonMusic := widget.NewButton("Music", func() {
+		musicEnabled = !musicEnabled
+		if musicEnabled {
+			player.Play()
+		} else {
+			player.Pause()
+		}
+	})
+
+	decodedMp3.Seek(-3000000, io.SeekEnd)
+	player.SetVolume(1)
+	player.Play()
+
+	return wdgButtonMusic
+}
+
+func musicRestartRoutine(player oto.Player, decodedMp3 *mp3.Decoder, musicEnabled *bool) {
+	for true {
+		pos, _ := decodedMp3.Seek(0, io.SeekCurrent)
+		if pos < decodedMp3.Length()-1 {
+			time.Sleep(time.Second)
+			continue
+		}
+
+		decodedMp3.Seek(0, io.SeekStart)
+		player.Play()
+	}
 }
 
 func guiFindDirectories(tool patchers.PatcherTool, files chan []string, appdataDirs chan []string) {
@@ -272,7 +326,7 @@ func guiFindRunningProducts(tool patchers.PatcherTool, products chan []patchers.
 
 var messages []string = []string{
 	"Waiting...",
-	"Stil waiting...",
+	"Still waiting...",
 	"This is taking soooo long....",
 	"Probably you should use an SSD?",
 	"Wow your computer is a potato...",
