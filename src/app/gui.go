@@ -11,9 +11,7 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"github.com/hajimehoshi/go-mp3"
-	"github.com/hajimehoshi/oto/v2"
-	"io"
+	music_player "jetbrainser/src/musicplayer"
 	"jetbrainser/src/patchers"
 	"math/rand"
 	"strings"
@@ -272,14 +270,8 @@ func addMusicButton() *widget.Button {
 
 	noButton.Hide()
 
-	player, decodedMp3, err := initMusic()
-	if err != nil {
-		return noButton
-	}
-
-	musicEnabled := true
-	go musicRestartRoutine(player, decodedMp3, &musicEnabled)
-
+	musicEnabled := false
+	player := music_player.NewPlayer()
 	wdgButtonMusic := widget.NewButton("Music", func() {
 		musicEnabled = !musicEnabled
 		if musicEnabled {
@@ -289,24 +281,28 @@ func addMusicButton() *widget.Button {
 		}
 	})
 
-	decodedMp3.Seek(-3000000, io.SeekEnd)
-	player.SetVolume(1)
-	player.Play()
+	wdgButtonMusic.OnTapped()
+
+	go func() {
+		pos := 0
+		text := strings.ToLower(wdgButtonMusic.Text)
+		for true {
+			time.Sleep(300 * time.Millisecond)
+			if !musicEnabled {
+				continue
+			}
+
+			if pos >= len(text) {
+				pos = 0
+			}
+
+			newText := text[0:pos] + strings.ToUpper(text[pos:pos+1]) + text[pos+1:]
+			wdgButtonMusic.SetText(newText)
+			pos++
+		}
+	}()
 
 	return wdgButtonMusic
-}
-
-func musicRestartRoutine(player oto.Player, decodedMp3 *mp3.Decoder, musicEnabled *bool) {
-	for true {
-		pos, _ := decodedMp3.Seek(0, io.SeekCurrent)
-		if pos < decodedMp3.Length()-1 {
-			time.Sleep(time.Second)
-			continue
-		}
-
-		decodedMp3.Seek(0, io.SeekStart)
-		player.Play()
-	}
 }
 
 func guiFindDirectories(tool patchers.PatcherTool, files chan []string, appdataDirs chan []string) {
