@@ -129,6 +129,13 @@ func (p *PatcherToolAbstract) FindVmoptionsFromProcesses() []ProductInfo {
 			info.VmoptionsDestinationPath = filepath.Join(p.GetAppdataDir(), "JetBrains", infoJson.DataDirectoryName)
 			info.ProductFolder = infoJson.DataDirectoryName
 
+			vmOptionsFilename := filepath.Base(info.VmoptionsSourcePath)
+			vmOptionsDestinationFile := filepath.Join(info.VmoptionsDestinationPath, vmOptionsFilename)
+
+			if p.FileExists(vmOptionsDestinationFile) {
+				info.VmoptionsSourcePath = vmOptionsDestinationFile
+			}
+
 			infos = append(infos, info)
 
 		} else if strings.Index(cmdline, "-Djb.vmOptionsFile=") != -1 &&
