@@ -86,6 +86,8 @@ func (p *PatcherToolAbstract) GetProductCanonicalNameByCode(productCode string, 
 func (p *PatcherToolAbstract) FindVmoptionsFromProcesses() []ProductInfo {
 	var infos []ProductInfo
 
+	var exeList = *p.GetExeList()
+
 	pids, _ := process.Pids()
 	for _, pid := range pids {
 		proc, _ := process.NewProcess(pid)
@@ -94,12 +96,47 @@ func (p *PatcherToolAbstract) FindVmoptionsFromProcesses() []ProductInfo {
 			continue
 		}
 
-		if strings.Index(cmdline, "-Djb.vmOptionsFile=") != -1 &&
+		exeNameConst, err := proc.Exe()
+		if err != nil {
+			continue
+		}
+
+		exeName := filepath.Base(exeNameConst)
+		_, exeNameMatch := exeList[exeName]
+
+		if exeNameMatch {
+			productPath, err := filepath.Abs(exeNameConst)
+			if err != nil {
+				continue
+			}
+
+			productInfoJsonFilePath, err := p.FindProductInfoJson(productPath)
+			if _, err := os.Stat(productInfoJsonFilePath); err != nil {
+				continue
+			}
+
+			infoJson, err := p.parseProductInfoJson(productInfoJsonFilePath)
+			if err != nil {
+				continue
+			}
+
+			info := ProductInfo{}
+			info.ProductName = infoJson.Name
+			info.ProductSlug = strings.ToLower(p.GetProductCanonicalNameByCode(strings.ToLower(infoJson.ProductCode), infoJson.Name))
+			info.BuildNumber = infoJson.BuildNumber
+
+			info.VmoptionsSourcePath = filepath.Join(productPath, infoJson.Launch[0]["vmOptionsFilePath"].(string))
+			info.VmoptionsDestinationPath = filepath.Join(p.GetAppdataDir(), "JetBrains", infoJson.DataDirectoryName)
+			info.ProductFolder = infoJson.DataDirectoryName
+
+			infos = append(infos, info)
+
+		} else if strings.Index(cmdline, "-Djb.vmOptionsFile=") != -1 &&
 			strings.Index(cmdline, "-Didea.paths.selector=") != -1 &&
 			strings.Index(cmdline, ".vmoptions") != -1 {
 			parsed, _ := shellwords.Parse(cmdline)
+
 			productInfoJsonFilePath, err := p.FindProductInfoJson(parsed[0])
-			_ = productInfoJsonFilePath
 			if err != nil {
 				continue
 			}
@@ -145,6 +182,7 @@ func (p *PatcherToolAbstract) FindVmoptionsFromProcesses() []ProductInfo {
 
 			infos = append(infos, info)
 		}
+
 	}
 
 	return infos

@@ -31,7 +31,7 @@ func main() {
 
 func gui() {
 	a := app.New()
-	wndMain := a.NewWindow("Jetbrainser")
+	wndMain := a.NewWindow("Jetbrainser" + windowsTitleSuffix)
 	wndMain.Resize(fyne.NewSize(640, 480))
 	wndMain.SetFixedSize(true)
 	wndMain.CenterOnScreen()
