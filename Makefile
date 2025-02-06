@@ -21,6 +21,9 @@ buildgui-linux-x64:
 	GOARCH=amd64 GOOS=linux go build -tags gui -o "${OUTDIR}/${BINARY_NAME}-gui-linux-x64" "${SRCPATH}"
 	CGO_ENABLED=1 GOARCH=arm64 GOOS=linux go build -tags gui -o "${OUTDIR}/${BINARY_NAME}-gui-linux-arm" "${SRCPATH}"
 
+buildgui-osx:
+	fyne package -os darwin
+
 clean:
 	go clean
 	# rm -f "${OUTDIR}/${BINARY_NAME}-linux_64"
