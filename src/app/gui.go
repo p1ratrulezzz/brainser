@@ -11,6 +11,7 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"jetbrainser/src/musicplayer"
 	"jetbrainser/src/patchers"
 	"math/rand"
 	"strings"
@@ -267,44 +268,41 @@ func gui() {
 }
 
 func addMusicButton() *widget.Button {
-	noButton := widget.NewButton("", func() {
-
-	})
-
-	noButton.Hide()
-
-	// musicEnabled := false
-	// player := music_player.NewPlayer()
+	musicEnabled := false
+	var player musicplayer.MusicPlayerInterface
 	wdgButtonMusic := widget.NewButton("Music", func() {
-		return
-		//musicEnabled = !musicEnabled
-		//if musicEnabled {
-		//	player.Play()
-		//} else {
-		//	player.Pause()
-		//}
+		if player == nil {
+			player = musicplayer.NewPlayer()
+		}
+
+		musicEnabled = !musicEnabled
+		if musicEnabled {
+			player.Play()
+		} else {
+			player.Pause()
+		}
 	})
 
-	//wdgButtonMusic.OnTapped()
+	go func() {
+		// wdgButtonMusic.OnTapped()
 
-	//go func() {
-	//	pos := 0
-	//	text := strings.ToLower(wdgButtonMusic.Text)
-	//	for true {
-	//		time.Sleep(300 * time.Millisecond)
-	//		if !musicEnabled {
-	//			continue
-	//		}
-	//
-	//		if pos >= len(text) {
-	//			pos = 0
-	//		}
-	//
-	//		newText := text[0:pos] + strings.ToUpper(text[pos:pos+1]) + text[pos+1:]
-	//		wdgButtonMusic.SetText(newText)
-	//		pos++
-	//	}
-	//}()
+		pos := 0
+		text := strings.ToLower(wdgButtonMusic.Text)
+		for true {
+			time.Sleep(300 * time.Millisecond)
+			if !musicEnabled {
+				continue
+			}
+
+			if pos >= len(text) {
+				pos = 0
+			}
+
+			newText := text[0:pos] + strings.ToUpper(text[pos:pos+1]) + text[pos+1:]
+			wdgButtonMusic.SetText(newText)
+			pos++
+		}
+	}()
 
 	return wdgButtonMusic
 }

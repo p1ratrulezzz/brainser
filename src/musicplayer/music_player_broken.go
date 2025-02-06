@@ -1,6 +1,6 @@
 //go:build gui
 
-package music_player
+package musicplayer
 
 type MusicPlayerBroken struct {
 	MusicPlayerInterface
