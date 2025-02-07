@@ -22,7 +22,8 @@ buildgui-linux-x64:
 	CGO_ENABLED=1 GOARCH=arm64 GOOS=linux go build -tags gui -o "${OUTDIR}/${BINARY_NAME}-gui-linux-arm" "${SRCPATH}"
 
 buildgui-osx:
-	fyne package -os darwin
+	#go run github.com/fyne-io/fyne-cross@latest darwin -arch=amd64,arm64 -app-id com.jetbrainser.app -tags gui -output jetbrainser ./src/app
+	go run github.com/fyne-io/fyne-cross@latest darwin -arch=amd64,arm64 -app-id com.jetbrainser.app -tags gui --icon src/app/Icon.png -output jetbrainser ./src/app
 
 clean:
 	go clean

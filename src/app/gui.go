@@ -284,7 +284,7 @@ func addMusicButton() *widget.Button {
 	})
 
 	go func() {
-		// wdgButtonMusic.OnTapped()
+		wdgButtonMusic.OnTapped()
 
 		pos := 0
 		text := strings.ToLower(wdgButtonMusic.Text)
