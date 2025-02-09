@@ -58,7 +58,7 @@ func (player *MusicPlayer) ReloadFile() {
 
 	player.currentFile = decodedMp3
 	player.currentPlayer = player.otoCtx.NewPlayer(player.currentFile)
-	player.currentPlayer.SetVolume(1)
+	player.currentPlayer.SetVolume(0.35)
 }
 
 func (player *MusicPlayer) Play() {
