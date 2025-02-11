@@ -17,9 +17,9 @@ buildgui-win:
 	#go run github.com/fyne-io/fyne-cross@latest darwin --macosx-sdk-path=./SDKs/MacOSX12.3.sdk -arch=amd64 -app-id com.jetbrainser.app -tags gui -output jetbrainser ./src/app
 
 buildgui-linux-x64:
-	#go run github.com/fyne-io/fyne-cross@latest linux -arch=amd64 -tags gui -output jetbrainser ./src/app
-	GOARCH=amd64 GOOS=linux go build -tags gui -o "${OUTDIR}/${BINARY_NAME}-gui-linux-x64" "${SRCPATH}"
-	CGO_ENABLED=1 GOARCH=arm64 GOOS=linux go build -tags gui -o "${OUTDIR}/${BINARY_NAME}-gui-linux-arm" "${SRCPATH}"
+	go run github.com/fyne-io/fyne-cross@latest linux -arch=amd64 -tags gui -output jetbrainser ./src/app
+	# GOARCH=amd64 GOOS=linux go build -tags gui -o "${OUTDIR}/${BINARY_NAME}-gui-linux-x64" "${SRCPATH}"
+	# CGO_ENABLED=1 GOARCH=arm64 GOOS=linux go build -tags gui -o "${OUTDIR}/${BINARY_NAME}-gui-linux-arm" "${SRCPATH}"
 
 buildgui-osx:
 	#go run github.com/fyne-io/fyne-cross@latest darwin -arch=amd64,arm64 -app-id com.jetbrainser.app -tags gui -output jetbrainser ./src/app
