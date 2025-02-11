@@ -1,30 +1,31 @@
 BINARY_NAME=jetbrainser
 OUTDIR=bin
 SRCPATH=jetbrainser/src/app
+VERSION=0.0.9
+BUILD_ID=$(shell date +"%Y%m%d%H%M%S")
 
 build:
-	CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -tags console -o "${OUTDIR}/${BINARY_NAME}-linux-x64" "${SRCPATH}"
-	CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -tags console -o "${OUTDIR}/${BINARY_NAME}-win-x64.exe" "${SRCPATH}"
-	CGO_ENABLED=0 GOARCH=arm64 GOOS=linux go build -tags console -o "${OUTDIR}/${BINARY_NAME}-linux-arm64" "${SRCPATH}"
-	CGO_ENABLED=0 GOARCH=arm64 GOOS=windows go build -tags console -o "${OUTDIR}/${BINARY_NAME}-win-arm64.exe" "${SRCPATH}"
-	CGO_ENABLED=0 GOARCH=arm64 GOOS=darwin go build -tags console -o "${OUTDIR}/${BINARY_NAME}-osx-arm64" "${SRCPATH}"
-	CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -tags console -o "${OUTDIR}/${BINARY_NAME}-osx-amd64" "${SRCPATH}"
+	rm -f bin/*
+	CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -tags console -o "${OUTDIR}/${BINARY_NAME}-${VERSION}-${BUILD_ID}-linux-x64" "${SRCPATH}"
+	CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -tags console -o "${OUTDIR}/${BINARY_NAME}-${VERSION}-${BUILD_ID}-win-x64.exe" "${SRCPATH}"
+	CGO_ENABLED=0 GOARCH=arm64 GOOS=linux go build -tags console -o "${OUTDIR}/${BINARY_NAME}-${VERSION}-${BUILD_ID}-linux-arm64" "${SRCPATH}"
+	CGO_ENABLED=0 GOARCH=arm64 GOOS=windows go build -tags console -o "${OUTDIR}/${BINARY_NAME}-${VERSION}-${BUILD_ID}-win-arm64.exe" "${SRCPATH}"
+	CGO_ENABLED=0 GOARCH=arm64 GOOS=darwin go build -tags console -o "${OUTDIR}/${BINARY_NAME}-${VERSION}-${BUILD_ID}-osx-arm64" "${SRCPATH}"
+	CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -tags console -o "${OUTDIR}/${BINARY_NAME}-${VERSION}-${BUILD_ID}-osx-amd64" "${SRCPATH}"
 	chmod +x bin/*
 
 buildgui-win:
-	#rm -rf fyne-cross/dist
-	go run github.com/fyne-io/fyne-cross@latest windows -arch=amd64,arm64 -app-id=com.jetbrainser.app -tags gui -output jetbrainser.exe ./src/app
-	#go run github.com/fyne-io/fyne-cross@latest darwin --macosx-sdk-path=./SDKs/MacOSX12.3.sdk -arch=amd64 -app-id com.jetbrainser.app -tags gui -output jetbrainser ./src/app
+	go run github.com/fyne-io/fyne-cross@latest windows -arch=amd64,arm64 -app-version="${VERSION}" -app-build="${BUILD_ID}" -app-id=com.jetbrainser.app -tags gui --icon src/app/Icon.png -output "jetbrainser-${VERSION}-${BUILD_ID}.exe" ./src/app
 
 buildgui-linux-x64:
-	go run github.com/fyne-io/fyne-cross@latest linux -arch=amd64 -tags gui -output jetbrainser ./src/app
-	# GOARCH=amd64 GOOS=linux go build -tags gui -o "${OUTDIR}/${BINARY_NAME}-gui-linux-x64" "${SRCPATH}"
-	# CGO_ENABLED=1 GOARCH=arm64 GOOS=linux go build -tags gui -o "${OUTDIR}/${BINARY_NAME}-gui-linux-arm" "${SRCPATH}"
+	go run github.com/fyne-io/fyne-cross@latest linux -image=fyne-cross-custom:linux -arch=amd64 -tags gui -app-version="${VERSION}" -app-build="${BUILD_ID}" --icon src/app/Icon.png -output "jetbrainser-${VERSION}-${BUILD_ID}" ./src/app
+	# go run github.com/fyne-io/fyne-cross@latest linux -image=fyne-cross-custom:linux -arch=arm64 -tags gui -app-version="${VERSION}" -app-build="${BUILD_ID}" --icon src/app/Icon.png -output "jetbrainser-${VERSION}-${BUILD_ID}" ./src/app
 
 buildgui-osx:
-	#go run github.com/fyne-io/fyne-cross@latest darwin -arch=amd64,arm64 -app-id com.jetbrainser.app -tags gui -output jetbrainser ./src/app
-	go run github.com/fyne-io/fyne-cross@latest darwin -arch=amd64,arm64 -app-id com.jetbrainser.app -tags gui --icon src/app/Icon.png -output jetbrainser ./src/app
+	go run github.com/fyne-io/fyne-cross@latest darwin -arch=amd64,arm64 -app-version="${VERSION}" -app-build="${BUILD_ID}" -app-id com.jetbrainser.app -tags gui --icon src/app/Icon.png -output jetbrainser ./src/app
+
+build-non-macos: clean build buildgui-win buildgui-linux-x64
+
 
 clean:
 	go clean
-	# rm -f "${OUTDIR}/${BINARY_NAME}-linux_64"
