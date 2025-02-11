@@ -18,6 +18,8 @@ var stdin *bufio.Reader
 
 var globalvarCleanupMode bool
 
+var windowsTitleSuffix string = " (Mental Delivrance)"
+
 func init() {
 	globalvarCleanupMode = false
 	osName = runtime.GOOS

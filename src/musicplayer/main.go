@@ -1,13 +1,13 @@
 //go:build gui
 
-package music_player
+package musicplayer
 
 import (
 	"bytes"
 	"embed"
 	"errors"
+	"github.com/ebitengine/oto/v3"
 	"github.com/hajimehoshi/go-mp3"
-	"github.com/hajimehoshi/oto/v2"
 	"io"
 	"time"
 )
@@ -24,7 +24,7 @@ type MusicPlayerInterface interface {
 type MusicPlayer struct {
 	MusicPlayerInterface
 	otoCtx        *oto.Context
-	currentPlayer oto.Player
+	currentPlayer *oto.Player
 	currentFile   *mp3.Decoder
 }
 
@@ -42,7 +42,7 @@ func (player *MusicPlayer) MusicIsEmptyOrFinished() bool {
 }
 
 func (player *MusicPlayer) ReloadFile() {
-	fileBytes, err := musicFiles.ReadFile("music/outrun.mp3")
+	fileBytes, err := musicFiles.ReadFile("music/audio.mp3")
 	if err != nil {
 		return
 	}
@@ -58,7 +58,7 @@ func (player *MusicPlayer) ReloadFile() {
 
 	player.currentFile = decodedMp3
 	player.currentPlayer = player.otoCtx.NewPlayer(player.currentFile)
-	player.currentPlayer.SetVolume(1)
+	player.currentPlayer.SetVolume(0.35)
 }
 
 func (player *MusicPlayer) Play() {
@@ -112,23 +112,27 @@ func (player *MusicPlayer) IsPlaying() bool {
 }
 
 func NewPlayer() MusicPlayerInterface {
-	samplingRate := 44100
+	op := &oto.NewContextOptions{}
+
+	// Usually 44100 or 48000. Other values might cause distortions in Oto
+	op.SampleRate = 44100
 
 	// Number of channels (aka locations) to play sounds from. Either 1 or 2.
 	// 1 is mono sound, and 2 is stereo (most speakers are stereo).
-	numOfChannels := 2
+	op.ChannelCount = 2
 
-	// Bytes used by a channel to represent one sample. Either 1 or 2 (usually 2).
-	audioBitDepth := 2
+	// Format of the source. go-mp3's format is signed 16bit integers.
+	op.Format = oto.FormatSignedInt16LE
 
 	// Remember that you should **not** create more than one context
-	otoCtx, readyChan, err := oto.NewContext(samplingRate, numOfChannels, audioBitDepth)
-	<-readyChan
+	otoCtx, readyChan, err := oto.NewContext(op)
 
 	if err != nil {
 		player := new(MusicPlayerBroken)
 		return player
 	}
+
+	<-readyChan
 
 	player := new(MusicPlayer)
 	player.otoCtx = otoCtx
@@ -136,47 +140,3 @@ func NewPlayer() MusicPlayerInterface {
 
 	return player
 }
-
-//
-//func initMusic() (oto.Player, *mp3.Decoder, error) {
-//	fileBytes, err := musicFiles.ReadFile("music/outrun.mp3")
-//	if err != nil {
-//		return nil, nil, err
-//	}
-//
-//	// Convert the pure bytes into a reader object that can be used with the mp3 decoder
-//	fileBytesReader := bytes.NewReader(fileBytes)
-//
-//	// Decode file
-//	decodedMp3, err := mp3.NewDecoder(fileBytesReader)
-//	if err != nil {
-//		return nil, nil, err
-//	}
-//
-//	// Prepare an Oto context (this will use your default audio device) that will
-//	// play all our sounds. Its configuration can't be changed later.
-//
-//	// Usually 44100 or 48000. Other values might cause distortions in Oto
-//	samplingRate := 44100
-//
-//	// Number of channels (aka locations) to play sounds from. Either 1 or 2.
-//	// 1 is mono sound, and 2 is stereo (most speakers are stereo).
-//	numOfChannels := 2
-//
-//	// Bytes used by a channel to represent one sample. Either 1 or 2 (usually 2).
-//	audioBitDepth := 2
-//
-//	// Remember that you should **not** create more than one context
-//	otoCtx, readyChan, err := oto.NewContext(samplingRate, numOfChannels, audioBitDepth)
-//	if err != nil {
-//		return nil, nil, err
-//	}
-//	// It might take a bit for the hardware audio devices to be ready, so we wait on the channel.
-//	<-readyChan
-//
-//	// Create a new 'player' that will handle our sound. Paused by default.
-//	player := otoCtx.NewPlayer(decodedMp3)
-//
-//	// Play starts playing the sound and returns without waiting for it (Play() is async).
-//	return player, decodedMp3, nil
-//}

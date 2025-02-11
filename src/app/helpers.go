@@ -93,7 +93,7 @@ func cleanupVmoptions(vmoptionsContent []byte) (string, []string) {
 		}
 	}
 
-	if vmoptionsContentString[len(vmoptionsContentString)-1:] != "\n" {
+	if len(vmoptionsContentString) > 0 && vmoptionsContentString[len(vmoptionsContentString)-1:] != "\n" {
 		vmoptionsContentString += "\n"
 	}
 

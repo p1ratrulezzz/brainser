@@ -62,15 +62,14 @@ func (p *PatcherToolDarwin) FindVmoptionsFromProcesses() []ProductInfo {
 			if re.MatchString(exeNameConst) {
 				productPath, _ := filepath.Abs(filepath.Join(exeNameConst, "../../"))
 				appFolderName, _ := filepath.Abs(filepath.Join(productPath, "../"))
+				productInfoJsonPath, _ := filepath.Abs(filepath.Join(productPath, "/Resources/product-info.json"))
 				toolboxVmoptionsPath := appFolderName + ".vmoptions"
-				plistPath := filepath.Join(productPath, "Info.plist")
-				plistInfo, err := p.parsePlist(plistPath)
-				if err != nil {
-					break
+
+				if !p.FileExists(productInfoJsonPath) {
+					continue
 				}
 
-				properties := plistInfo.JVMOptions["Properties"].(map[string]interface{})
-				pathSelector := properties["idea.paths.selector"].(string)
+				jsonParsed, _ := p.parseProductInfoJson(productInfoJsonPath)
 
 				var info ProductInfo
 				info.ProductSlug = product
@@ -78,7 +77,14 @@ func (p *PatcherToolDarwin) FindVmoptionsFromProcesses() []ProductInfo {
 				// @todo: Parse product-info.json file and fill build number
 				info.ProductFolder = productPath
 				info.VmoptionsSourcePath = filepath.Join(productPath, "bin", product+".vmoptions")
-				info.VmoptionsDestinationPath = filepath.Join(p.GetAppdataDir(), "JetBrains", pathSelector)
+				info.VmoptionsDestinationPath = filepath.Join(p.GetAppdataDir(), "JetBrains", jsonParsed.DataDirectoryName)
+
+				vmOptionsFilename := filepath.Base(info.VmoptionsSourcePath)
+				vmOptionsDestinationFile := filepath.Join(info.VmoptionsDestinationPath, vmOptionsFilename)
+
+				if p.FileExists(vmOptionsDestinationFile) {
+					info.VmoptionsSourcePath = vmOptionsDestinationFile
+				}
 
 				if !p.FileExists(info.VmoptionsSourcePath) {
 					break

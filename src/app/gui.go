@@ -11,7 +11,7 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	music_player "jetbrainser/src/musicplayer"
+	"jetbrainser/src/musicplayer"
 	"jetbrainser/src/patchers"
 	"math/rand"
 	"strings"
@@ -31,7 +31,7 @@ func main() {
 
 func gui() {
 	a := app.New()
-	wndMain := a.NewWindow("Jetbrainser")
+	wndMain := a.NewWindow("Jetbrainser" + windowsTitleSuffix)
 	wndMain.Resize(fyne.NewSize(640, 480))
 	wndMain.SetFixedSize(true)
 	wndMain.CenterOnScreen()
@@ -123,6 +123,7 @@ func gui() {
 	})
 
 	ptrWdgButtonNext = wdgButtonNext
+
 	var wdgButtonRescanPtr *widget.Button
 	var wdgButtonManualPtr *widget.Button
 	wdgButtonManual := widget.NewButton("Switch to manual mode", func() {
@@ -208,8 +209,6 @@ func gui() {
 		selectedIndex = id
 	}
 
-	wdgButtonRescan.OnTapped()
-
 	wdgButtonInfo := widget.NewButton("Info", func() {
 		wdgLabel := widget.NewLabel(item_show_info_get_text())
 		var wdgPopupModalPtr *widget.PopUp
@@ -242,9 +241,10 @@ func gui() {
 		a.Quit()
 	})
 
-	wdgMusicButton := addMusicButton()
-
 	top := container.NewVBox(wdgLabelTop, wdgProgressBar)
+
+	// wdgMusicButton := widget.NewButton("Music", func() {})
+	wdgMusicButton := addMusicButton()
 
 	buttons1 := container.NewAdaptiveGrid(2, wdgButtonNext, wdgButtonRescan)
 	buttons2 := container.NewAdaptiveGrid(2, wdgButtonCleanupModeSwitch, wdgButtonManual)
@@ -259,20 +259,22 @@ func gui() {
 		buttonsBox,
 	)
 
+	go func() {
+		// time.Sleep(1 * time.Second)
+		wdgButtonRescan.OnTapped()
+	}()
 	wndMain.SetContent(content)
 	wndMain.ShowAndRun()
 }
 
 func addMusicButton() *widget.Button {
-	noButton := widget.NewButton("", func() {
-
-	})
-
-	noButton.Hide()
-
 	musicEnabled := false
-	player := music_player.NewPlayer()
+	var player musicplayer.MusicPlayerInterface
 	wdgButtonMusic := widget.NewButton("Music", func() {
+		if player == nil {
+			player = musicplayer.NewPlayer()
+		}
+
 		musicEnabled = !musicEnabled
 		if musicEnabled {
 			player.Play()
@@ -281,9 +283,9 @@ func addMusicButton() *widget.Button {
 		}
 	})
 
-	wdgButtonMusic.OnTapped()
-
 	go func() {
+		wdgButtonMusic.OnTapped()
+
 		pos := 0
 		text := strings.ToLower(wdgButtonMusic.Text)
 		for true {
