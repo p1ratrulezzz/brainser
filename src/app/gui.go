@@ -42,6 +42,7 @@ func gui() {
 	var appdataDirs []string
 	var files []string
 	var products []patchers.ProductInfo
+	productsMap := make(map[string]*patchers.ProductInfo)
 	var guiPrepareExit func()
 
 	files = []string{"test"}
@@ -58,7 +59,6 @@ func gui() {
 			wdbLbl := o.(*widget.Label)
 			wdbLbl.Alignment = fyne.TextAlignTrailing
 			wdbLbl.Bind(i.(binding.String))
-
 		})
 
 	bndWidgetText := binding.NewString()
@@ -66,19 +66,26 @@ func gui() {
 	wdgList.Hide()
 
 	wdgLabelTop := widget.NewLabel("Searching for products...")
+	wdgProductListCheckbox := widget.NewCheckGroup([]string{}, func(i []string) {})
+	wdgProductListCheckbox.Hide()
 
 	step := 0
 	selectedIndex := 0
 	var ptrWdgButtonNext *widget.Button
 	var selectedSource, selectedAppdata, selectedKey int
-	wdgButtonNext := widget.NewButton("Patch All", func() {
+	wdgButtonNext := widget.NewButton("Patch selected", func() {
 		wdgList.UnselectAll()
 
 		switch step {
 		// Automatic patch mode
 		case 0:
 			step = 100
-			messages := doAutoPatch(tool, products)
+			var productsSelected []patchers.ProductInfo
+			for _, key := range wdgProductListCheckbox.Selected {
+				productsSelected = append(productsSelected, *productsMap[key])
+			}
+
+			messages := doAutoPatch(tool, productsSelected)
 			wdgListText.SetText(strings.Join(messages, "\n"))
 			guiPrepareExit()
 			break
@@ -160,9 +167,13 @@ func gui() {
 	wdgButtonManualPtr = wdgButtonManual
 
 	wdgButtonRescan := widget.NewButton("Rescan", func() {
+		wdgProductListCheckbox.Hide()
+		wdgProductListCheckbox.Options = []string{}
 		bndData = []string{}
 		bndFiles.Reload()
 
+		wdgProgressBar.Start()
+		wdgProgressBar.Show()
 		productsChan := make(chan []patchers.ProductInfo)
 		go guiFindRunningProducts(tool, productsChan)
 
@@ -180,9 +191,13 @@ func gui() {
 		for _, productInfo := range products {
 			listItem := productInfo.ProductName + "(" + productInfo.VmoptionsSourcePath + ")"
 			productList = append(productList, listItem)
+			wdgProductListCheckbox.Append(listItem)
+			productsMap[listItem] = &productInfo
 		}
 
-		bndWidgetText.Set(strings.Join(productList, "\n"))
+		wdgProductListCheckbox.SetSelected(productList)
+
+		wdgProductListCheckbox.Show()
 
 		wdgProgressBar.Stop()
 		wdgProgressBar.Hide()
@@ -210,6 +225,7 @@ func gui() {
 	}
 
 	wdgButtonInfo := widget.NewButton("Info", func() {
+		_ = wdgProductListCheckbox.Selected
 		wdgLabel := widget.NewLabel(item_show_info_get_text())
 		var wdgPopupModalPtr *widget.PopUp
 		btnClosePopup := widget.NewButton("Close", func() {
@@ -241,7 +257,7 @@ func gui() {
 		a.Quit()
 	})
 
-	top := container.NewVBox(wdgLabelTop, wdgProgressBar)
+	top := container.NewVBox(wdgLabelTop, wdgProductListCheckbox, wdgProgressBar)
 
 	// wdgMusicButton := widget.NewButton("Music", func() {})
 	wdgMusicButton := addMusicButton()
