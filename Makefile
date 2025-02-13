@@ -19,14 +19,14 @@ buildgui-win:
 	go run github.com/fyne-io/fyne-cross@latest windows -arch=arm64 -app-version="${VERSION}" -app-build="${BUILD_ID}" -app-id=com.jetbrainser.app -tags gui --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-${BUILD_ID}-win-arm64.exe" ./src/app
 
 buildgui-linux-amd64:
-	go run github.com/fyne-io/fyne-cross@latest linux -image=fyne-cross-custom:linux -arch=amd64 -tags gui -app-version="${VERSION}" -app-build="${BUILD_ID}" --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-${BUILD_ID}-linux-amd64" ./src/app
+	go run github.com/fyne-io/fyne-cross@latest linux -image=fyne-cross-custom:amd64 -arch=amd64 -tags gui -app-version="${VERSION}" -app-build="${BUILD_ID}" --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-${BUILD_ID}-linux-amd64" ./src/app
 
 buildgui-linux-arm64:
-	go run github.com/fyne-io/fyne-cross@latest linux -image=fyne-cross-custom:linux -arch=arm64 -tags gui -app-version="${VERSION}" -app-build="${BUILD_ID}" --icon src/app/Icon.png -output "jetbrainser-${VERSION}-${BUILD_ID}-linux-arm64" ./src/app
+	go run github.com/fyne-io/fyne-cross@latest linux -image=fyne-cross-custom:arm64 -arch=arm64 -tags gui -app-version="${VERSION}" -app-build="${BUILD_ID}" --icon src/app/Icon.png -output "jetbrainser-${VERSION}-${BUILD_ID}-linux-arm64" ./src/app
 
 buildgui-osx:
 	go run github.com/fyne-io/fyne-cross@latest darwin -arch=amd64 -app-version="${VERSION}" -app-build="${BUILD_ID}" -app-id com.jetbrainser.app -tags gui --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-${BUILD_ID}-amd64" ./src/app
-	go run github.com/fyne-io/fyne-cross@latest darwin -arch=arm64 -app-version="${VERSION}" -app-build="${BUILD_ID}" -app-id com.jetbrainser.app -tags gui --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-${BUILD_ID}-arm64" ./src/app
+	go run github.com/fyne-io/fyne-cross@latest darwin -release -arch=arm64 -app-version="${VERSION}" -app-build="${BUILD_ID}" -app-id com.jetbrainser.app -tags gui --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-${BUILD_ID}-arm64" ./src/app
 
 build-non-macos: clean build buildgui-win buildgui-linux-amd64
 
