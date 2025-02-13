@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/inancgumus/screen"
-	"sort"
 	"strconv"
 )
 
@@ -22,14 +21,10 @@ func menu_loop() {
 		ITEM_CLEANUP:     "Cleanup mode",
 	}
 
-	var itemKeysIndex []byte
+	itemKeysIndex := make([]byte, len(items))
 	for i, _ := range items {
-		itemKeysIndex = append(itemKeysIndex, i)
+		itemKeysIndex[i] = byte(i)
 	}
-
-	sort.SliceStable(itemKeysIndex, func(i, j int) bool {
-		return i < j
-	})
 
 	func() {
 		var selected_item int

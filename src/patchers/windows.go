@@ -50,6 +50,7 @@ func (p *PatcherToolWindows) FindVmoptionsFromProcesses() []ProductInfo {
 	var infos []ProductInfo
 
 	var exeList = *p.GetExeList()
+	var infosUnuqieMap = make(map[string]byte)
 
 	pids, _ := process.Pids()
 	for _, pid := range pids {
@@ -110,6 +111,11 @@ func (p *PatcherToolWindows) FindVmoptionsFromProcesses() []ProductInfo {
 			continue
 		}
 
+		if _, ok := infosUnuqieMap[info.VmoptionsDestinationPath]; ok {
+			continue
+		}
+
+		infosUnuqieMap[info.VmoptionsDestinationPath] = 0
 		infos = append(infos, info)
 	}
 
