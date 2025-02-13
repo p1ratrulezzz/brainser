@@ -1,5 +1,7 @@
 package patchers
 
+var pomidori map[string]string
+
 type PatcherTool interface {
 	FindVmoptionsFiles() []string
 	FindVmoptionsFilesInConfigDir() []string
@@ -9,8 +11,9 @@ type PatcherTool interface {
 }
 
 type Patcher struct {
-	OsName string
-	Tool   PatcherTool
+	OsName   string
+	Tool     PatcherTool
+	Pomidori map[string]string
 }
 
 func (p *Patcher) GetTool() PatcherTool {
@@ -31,5 +34,6 @@ func (p *Patcher) GetTool() PatcherTool {
 
 	}
 
+	pomidori = p.Pomidori
 	return p.Tool
 }

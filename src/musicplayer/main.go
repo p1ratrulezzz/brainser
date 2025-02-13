@@ -42,7 +42,7 @@ func (player *MusicPlayer) MusicIsEmptyOrFinished() bool {
 }
 
 func (player *MusicPlayer) ReloadFile() {
-	fileBytes, err := musicFiles.ReadFile("music/audio.mp3")
+	fileBytes, err := musicFiles.ReadFile("music/audio2.mp3")
 	if err != nil {
 		return
 	}

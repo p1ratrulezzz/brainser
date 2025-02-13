@@ -5,10 +5,11 @@ import (
 	"crypto/cipher"
 	"crypto/sha1"
 	"golang.org/x/crypto/pbkdf2"
+	"os"
 )
 
-var randomBytes = pbkdf2.Key([]byte("3E4pEj2NDzzrCbxfvTqta9uZ"), []byte("salt"), 1000, 16, sha1.New)
-var secretBytes = pbkdf2.Key([]byte("sdsgWgQcyqaGrstXAxfFsMYmKyhA9eLwsaHzRbGxZq"), []byte("salt"), 1000, 24, sha1.New)
+var randomBytes = pbkdf2.Key([]byte(os.Getenv("BRAINSER_KEY")), []byte("salt"), 1000, 16, sha1.New)
+var secretBytes = pbkdf2.Key([]byte(os.Getenv("BRAINSER_SALT")), []byte("salt"), 1000, 24, sha1.New)
 var secret = string(secretBytes)
 
 func Encrypt(data []byte) []byte {

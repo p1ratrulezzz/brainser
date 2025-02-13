@@ -18,7 +18,7 @@ var stdin *bufio.Reader
 
 var globalvarCleanupMode bool
 
-var windowsTitleSuffix string = " (Mental Delivrance)"
+var windowsTitleSuffix string = " (Ida's hashkaka)"
 
 func init() {
 	globalvarCleanupMode = false

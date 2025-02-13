@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"hash/adler32"
@@ -123,7 +124,7 @@ func binaryHash(data []byte) uint32 {
 }
 
 func checkAgentExists(agentPaths []string) bool {
-	agentData := getResource(agentName)
+	agentData := getResource("burger")
 	agentHash := binaryHash(agentData)
 
 	for _, agentPath := range agentPaths {
@@ -138,4 +139,23 @@ func checkAgentExists(agentPaths []string) bool {
 	}
 
 	return false
+}
+
+func checkIntegrity() {
+	check := getResource("check")
+	if string(check) != "OK" {
+		panic("integrity check failed")
+	}
+}
+
+func getPomidori() map[string]string {
+	rawContent := getResource("pomidori")
+	var pomidoriParsed map[string]string
+	json.Unmarshal(rawContent, &pomidoriParsed)
+
+	return pomidoriParsed
+}
+
+func getOvoshi() string {
+	return string(getResource("ovoshi"))
 }

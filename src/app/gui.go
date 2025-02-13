@@ -19,6 +19,8 @@ import (
 )
 
 func main() {
+	checkIntegrity()
+
 	flgNogui := flag.Bool("nogui", false, "Disable gui")
 	flag.Parse()
 
@@ -36,7 +38,7 @@ func gui() {
 	wndMain.SetFixedSize(true)
 	wndMain.CenterOnScreen()
 
-	patcher := patchers.Patcher{osName, nil}
+	patcher := patchers.Patcher{osName, nil, getPomidori()}
 	tool := patcher.GetTool()
 
 	var appdataDirs []string

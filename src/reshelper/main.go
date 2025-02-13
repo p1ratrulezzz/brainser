@@ -29,7 +29,7 @@ func main() {
 		return nil
 	})
 
-	encrypted, _ := os.ReadFile(destpath + "/test.txt.enc")
+	encrypted, _ := os.ReadFile(destpath + "/check.enc")
 	plainText := cryptor.Decrypt(encrypted)
 
 	fmt.Println("Text data " + string(plainText))

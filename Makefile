@@ -1,7 +1,7 @@
 BINARY_NAME=jetbrainser
 OUTDIR=bin
 SRCPATH=jetbrainser/src/app
-VERSION=0.0.9
+VERSION=0.0.10
 BUILD_ID=$(shell date +"%Y%m%d%H%M%S")
 
 build:
@@ -26,7 +26,7 @@ buildgui-linux-arm64:
 
 buildgui-osx:
 	go run github.com/fyne-io/fyne-cross@latest darwin -arch=amd64 -app-version="${VERSION}" -app-build="${BUILD_ID}" -app-id com.jetbrainser.app -tags gui --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-${BUILD_ID}-amd64" ./src/app
-	go run github.com/fyne-io/fyne-cross@latest darwin -release -arch=arm64 -app-version="${VERSION}" -app-build="${BUILD_ID}" -app-id com.jetbrainser.app -tags gui --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-${BUILD_ID}-arm64" ./src/app
+	go run github.com/fyne-io/fyne-cross@latest darwin -arch=arm64 -app-version="${VERSION}" -app-build="${BUILD_ID}" -app-id com.jetbrainser.app -tags gui --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-${BUILD_ID}-arm64" ./src/app
 
 build-non-macos: clean build buildgui-win buildgui-linux-amd64
 
