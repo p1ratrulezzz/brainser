@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"hash/adler32"
@@ -10,20 +11,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-var KeyList = map[string]string{
-	"appcode":   "AppCode",
-	"clion":     "Clion",
-	"datagrip":  "Datagrip",
-	"dataspell": "DataSpell",
-	"goland":    "GoLand",
-	"idea":      "Idea",
-	"phpstorm":  "PhpStorm",
-	"pycharm":   "PyCharm",
-	"rider":     "Rider",
-	"rubymine":  "RubyMine",
-	"webstorm":  "WebStorm",
-}
 
 var KeyListSlugIndexed, KeyListNameIndexed []string
 
@@ -56,9 +43,20 @@ func inputselect_from_array(choses []string) int {
 func getResource(path string) []byte {
 	path = strings.TrimSuffix(path, ".enc")
 	encrypted, _ := resources.ReadFile("resources_enc/" + path + ".enc")
+
 	resData := cryptor.Decrypt(encrypted)
 
 	return resData
+}
+
+func getSauce() string {
+	content, _ := resources.ReadFile("resources_enc/sauce.enc")
+	return string(content)
+}
+
+func getSalt() string {
+	content, _ := resources.ReadFile("resources_enc/salt.enc")
+	return string(content)
 }
 
 func cleanupVmoptions(vmoptionsContent []byte) (string, []string) {
@@ -123,7 +121,7 @@ func binaryHash(data []byte) uint32 {
 }
 
 func checkAgentExists(agentPaths []string) bool {
-	agentData := getResource(agentName)
+	agentData := getResource("burger")
 	agentHash := binaryHash(agentData)
 
 	for _, agentPath := range agentPaths {
@@ -138,4 +136,31 @@ func checkAgentExists(agentPaths []string) bool {
 	}
 
 	return false
+}
+
+func checkIntegrity() {
+	check := getResource("check")
+	if string(check) != "OK" {
+		panic("integrity check failed")
+	}
+}
+
+func getPomidori() map[string]string {
+	rawContent := getResource("pomidori")
+	var pomidoriParsed map[string]string
+	json.Unmarshal(rawContent, &pomidoriParsed)
+
+	return pomidoriParsed
+}
+
+func getOvoshi() string {
+	return string(getResource("ovoshi"))
+}
+
+func getKolbaski() map[string]string {
+	rawContent := getResource("kolbaski")
+	var kolbaskiParsed map[string]string
+	json.Unmarshal(rawContent, &kolbaskiParsed)
+
+	return kolbaskiParsed
 }

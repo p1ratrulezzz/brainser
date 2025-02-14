@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"embed"
 	"fmt"
+	"jetbrainser/src/cryptor"
 	"log"
 	"os"
 	"runtime"
@@ -18,7 +19,7 @@ var stdin *bufio.Reader
 
 var globalvarCleanupMode bool
 
-var windowsTitleSuffix string = " (Mental Delivrance)"
+var windowsTitleSuffix string = " (Ida's hashkaka)"
 
 func init() {
 	globalvarCleanupMode = false
@@ -33,8 +34,11 @@ func init() {
 		log.Fatal(fmt.Sprintf("this os \"%s\" is not supported (yet)", osName))
 	}
 
+	cryptor.SetSauce(getSauce())
+	cryptor.SetSalt(getSalt())
+
 	stdin = bufio.NewReader(os.Stdin)
-	for slug, name := range KeyList {
+	for slug, name := range getKolbaski() {
 		KeyListSlugIndexed = append(KeyListSlugIndexed, slug)
 		KeyListNameIndexed = append(KeyListNameIndexed, name)
 	}

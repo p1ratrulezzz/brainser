@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-const agentName = "agent.jar"
-
 var agentStrAdditional []string
 
 func doPatch(vmoptionsPath string, destinationPath string, agentDir string, keyIndex int) []string {
@@ -32,7 +30,7 @@ func doPatch(vmoptionsPath string, destinationPath string, agentDir string, keyI
 		agentDir = destinationDir
 	}
 
-	jarname := filepath.Join(agentDir, agentName)
+	jarname := filepath.Join(agentDir, getOvoshi())
 
 	vmoptionsName := filepath.Base(vmoptionsPath)
 	vmoptionsNewPath := filepath.Join(destinationDir, vmoptionsName)
@@ -70,7 +68,7 @@ func doPatch(vmoptionsPath string, destinationPath string, agentDir string, keyI
 		}
 
 		if !agentsExist {
-			jarfileContent := getResource(agentName)
+			jarfileContent := getResource("burger")
 			err := os.WriteFile(jarname, jarfileContent, 0644)
 			if err != nil {
 				errorMessages = append(errorMessages, fmt.Sprintf("File %s can't be written", jarname))
@@ -96,7 +94,7 @@ func doPatch(vmoptionsPath string, destinationPath string, agentDir string, keyI
 
 	keyPath := filepath.Join(destinationDir, KeyListSlugIndexed[keyIndex]+".key")
 	fpKey, err := os.Create(keyPath)
-	keyContent := getResource("universal.key")
+	keyContent := getResource("cotlettka")
 	fpKey.Write(keyContent)
 	fpKey.Close()
 

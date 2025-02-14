@@ -15,7 +15,7 @@ func item_patch_procs() {
 	stdin.ReadLine()
 
 	fmt.Println("Searching for products...")
-	patcher := patchers.Patcher{osName, nil}
+	patcher := patchers.Patcher{osName, nil, getPomidori()}
 	tool := patcher.GetTool()
 
 	allProducts := tool.FindVmoptionsFromProcesses()

@@ -7,9 +7,8 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 )
 
-var randomBytes = pbkdf2.Key([]byte("3E4pEj2NDzzrCbxfvTqta9uZ"), []byte("salt"), 1000, 16, sha1.New)
-var secretBytes = pbkdf2.Key([]byte("sdsgWgQcyqaGrstXAxfFsMYmKyhA9eLwsaHzRbGxZq"), []byte("salt"), 1000, 24, sha1.New)
-var secret = string(secretBytes)
+var randomBytes []byte
+var secret string
 
 func Encrypt(data []byte) []byte {
 	block, err := aes.NewCipher([]byte(secret))
@@ -36,4 +35,13 @@ func Decrypt(data []byte) []byte {
 	plainData := make([]byte, len(data))
 	cfb.XORKeyStream(plainData, data)
 	return plainData
+}
+
+func SetSauce(sauce string) {
+	randomBytes = pbkdf2.Key([]byte(sauce), []byte("salt"), 1000, 16, sha1.New)
+}
+
+func SetSalt(salt string) {
+	var secretBytes = pbkdf2.Key([]byte(salt), []byte("salt"), 1000, 24, sha1.New)
+	secret = string(secretBytes)
 }

@@ -86,7 +86,7 @@ func (p *PatcherToolAbstract) GetProductCanonicalNameByCode(productCode string, 
 func (p *PatcherToolAbstract) FindVmoptionsFromProcesses() []ProductInfo {
 	var infos []ProductInfo
 
-	var exeList = *p.GetExeList()
+	var pomidori = *p.GetPomidori()
 
 	pids, _ := process.Pids()
 	for _, pid := range pids {
@@ -102,7 +102,7 @@ func (p *PatcherToolAbstract) FindVmoptionsFromProcesses() []ProductInfo {
 		}
 
 		exeName := filepath.Base(exeNameConst)
-		_, exeNameMatch := exeList[exeName]
+		_, exeNameMatch := pomidori[exeName]
 
 		if exeNameMatch {
 			productPath, err := filepath.Abs(exeNameConst)
@@ -201,30 +201,6 @@ func (p *PatcherToolAbstract) FileExists(path string) bool {
 	return err == nil
 }
 
-func (p *PatcherToolAbstract) GetExeList() *map[string]string {
-	var exeListPtr *map[string]string
-
-	func() {
-		if exeListPtr != nil {
-			return
-		}
-
-		var exeList = map[string]string{
-			"appcode":   "AppCode",
-			"clion":     "Clion",
-			"datagrip":  "Datagrip",
-			"dataspell": "DataSpell",
-			"goland":    "GoLand",
-			"idea":      "Idea",
-			"phpstorm":  "PhpStorm",
-			"pycharm":   "PyCharm",
-			"rider":     "Rider",
-			"rubymine":  "RubyMine",
-			"webstorm":  "WebStorm",
-		}
-
-		exeListPtr = &exeList
-	}()
-
-	return exeListPtr
+func (p *PatcherToolAbstract) GetPomidori() *map[string]string {
+	return &pomidori
 }

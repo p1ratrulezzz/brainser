@@ -11,7 +11,7 @@ func item_patch() {
 	fmt.Println("Before patching, start your JetBrains product once and close it. Then press enter to continue...")
 	stdin.ReadLine()
 
-	patcher := patchers.Patcher{osName, nil}
+	patcher := patchers.Patcher{osName, nil, getPomidori()}
 	fmt.Println("Searching for *.vmoptions files ... ")
 	tool := patcher.GetTool()
 	files := tool.FindVmoptionsFiles()
