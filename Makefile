@@ -30,6 +30,5 @@ buildgui-osx:
 
 build-non-macos: clean build buildgui-win buildgui-linux-amd64
 
-
 clean:
 	go clean
