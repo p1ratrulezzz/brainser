@@ -94,7 +94,7 @@ func doPatch(vmoptionsPath string, destinationPath string, agentDir string, keyI
 
 	keyPath := filepath.Join(destinationDir, KeyListSlugIndexed[keyIndex]+".key")
 	fpKey, err := os.Create(keyPath)
-	keyContent := getResource("universal.key")
+	keyContent := getResource("cotlettka")
 	fpKey.Write(keyContent)
 	fpKey.Close()
 
