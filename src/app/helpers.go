@@ -57,9 +57,20 @@ func inputselect_from_array(choses []string) int {
 func getResource(path string) []byte {
 	path = strings.TrimSuffix(path, ".enc")
 	encrypted, _ := resources.ReadFile("resources_enc/" + path + ".enc")
+
 	resData := cryptor.Decrypt(encrypted)
 
 	return resData
+}
+
+func getSauce() string {
+	content, _ := resources.ReadFile("resources_enc/sauce.enc")
+	return string(content)
+}
+
+func getSalt() string {
+	content, _ := resources.ReadFile("resources_enc/salt.enc")
+	return string(content)
 }
 
 func cleanupVmoptions(vmoptionsContent []byte) (string, []string) {

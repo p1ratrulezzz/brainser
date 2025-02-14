@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"embed"
 	"fmt"
+	"jetbrainser/src/cryptor"
 	"log"
 	"os"
 	"runtime"
@@ -42,4 +43,7 @@ func init() {
 	// Init additional strings
 	agentStrAdditional = append(agentStrAdditional, "--add-opens=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED")
 	agentStrAdditional = append(agentStrAdditional, "--add-opens=java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED")
+
+	cryptor.SetSauce(getSauce())
+	cryptor.SetSalt(getSalt())
 }
