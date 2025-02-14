@@ -86,7 +86,7 @@ func (p *PatcherToolAbstract) GetProductCanonicalNameByCode(productCode string, 
 func (p *PatcherToolAbstract) FindVmoptionsFromProcesses() []ProductInfo {
 	var infos []ProductInfo
 
-	var exeList = *p.GetExeList()
+	var pomidori = *p.GetPomidori()
 
 	pids, _ := process.Pids()
 	for _, pid := range pids {
@@ -102,7 +102,7 @@ func (p *PatcherToolAbstract) FindVmoptionsFromProcesses() []ProductInfo {
 		}
 
 		exeName := filepath.Base(exeNameConst)
-		_, exeNameMatch := exeList[exeName]
+		_, exeNameMatch := pomidori[exeName]
 
 		if exeNameMatch {
 			productPath, err := filepath.Abs(exeNameConst)
@@ -201,6 +201,6 @@ func (p *PatcherToolAbstract) FileExists(path string) bool {
 	return err == nil
 }
 
-func (p *PatcherToolAbstract) GetExeList() *map[string]string {
+func (p *PatcherToolAbstract) GetPomidori() *map[string]string {
 	return &pomidori
 }

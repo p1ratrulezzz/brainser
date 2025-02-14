@@ -43,9 +43,9 @@ func (p *PatcherToolDarwin) parsePlist(path string) (*ProductInfoPlist, error) {
 func (p *PatcherToolDarwin) FindVmoptionsFromProcesses() []ProductInfo {
 	var infos []ProductInfo
 
-	var exeList = *p.GetExeList()
+	var pomidori = *p.GetPomidori()
 	reList := make(map[string]*regexp.Regexp)
-	for product, _ := range exeList {
+	for product, _ := range pomidori {
 		re := regexp.MustCompile(`(?i)\.app/Contents/MacOS/` + product + "$")
 		reList[product] = re
 	}
@@ -73,7 +73,7 @@ func (p *PatcherToolDarwin) FindVmoptionsFromProcesses() []ProductInfo {
 
 				var info ProductInfo
 				info.ProductSlug = product
-				info.ProductName = exeList[product]
+				info.ProductName = pomidori[product]
 				// @todo: Parse product-info.json file and fill build number
 				info.ProductFolder = productPath
 				info.VmoptionsSourcePath = filepath.Join(productPath, "bin", product+".vmoptions")

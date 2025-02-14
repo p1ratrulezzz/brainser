@@ -34,8 +34,11 @@ func init() {
 		log.Fatal(fmt.Sprintf("this os \"%s\" is not supported (yet)", osName))
 	}
 
+	cryptor.SetSauce(getSauce())
+	cryptor.SetSalt(getSalt())
+
 	stdin = bufio.NewReader(os.Stdin)
-	for slug, name := range KeyList {
+	for slug, name := range getKolbaski() {
 		KeyListSlugIndexed = append(KeyListSlugIndexed, slug)
 		KeyListNameIndexed = append(KeyListNameIndexed, name)
 	}
@@ -43,7 +46,4 @@ func init() {
 	// Init additional strings
 	agentStrAdditional = append(agentStrAdditional, "--add-opens=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED")
 	agentStrAdditional = append(agentStrAdditional, "--add-opens=java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED")
-
-	cryptor.SetSauce(getSauce())
-	cryptor.SetSalt(getSalt())
 }

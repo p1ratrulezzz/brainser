@@ -12,20 +12,6 @@ import (
 	"strings"
 )
 
-var KeyList = map[string]string{
-	"appcode":   "AppCode",
-	"clion":     "Clion",
-	"datagrip":  "Datagrip",
-	"dataspell": "DataSpell",
-	"goland":    "GoLand",
-	"idea":      "Idea",
-	"phpstorm":  "PhpStorm",
-	"pycharm":   "PyCharm",
-	"rider":     "Rider",
-	"rubymine":  "RubyMine",
-	"webstorm":  "WebStorm",
-}
-
 var KeyListSlugIndexed, KeyListNameIndexed []string
 
 func delay() {
@@ -169,4 +155,12 @@ func getPomidori() map[string]string {
 
 func getOvoshi() string {
 	return string(getResource("ovoshi"))
+}
+
+func getKolbaski() map[string]string {
+	rawContent := getResource("kolbaski")
+	var kolbaskiParsed map[string]string
+	json.Unmarshal(rawContent, &kolbaskiParsed)
+
+	return kolbaskiParsed
 }
