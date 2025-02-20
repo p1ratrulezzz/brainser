@@ -2,7 +2,7 @@ BINARY_NAME=jetbrainser
 OUTDIR=bin
 SRCPATH=jetbrainser/src/app
 VERSION=0.0.11
-BUILD_ID=$(shell date +"%Y%m%d%H%M%S")
+BUILD_ID := $(shell date +%y\ %W\ %u\ %H\ %M\ %S | awk '{print $$1 + $$2 + $$3 + $$4 + $$5 + $$6}')
 
 docker-build:
 	docker buildx bake -f docker-compose.yml --load

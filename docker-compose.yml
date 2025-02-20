@@ -3,17 +3,17 @@ services:
     build:
       context: ./docker/linux
     image: fyne-cross-custom:linux-amd64
+    platform: linux/amd64
     x-bake:
       tags:
         - fyne-cross-custom:linux-amd64
       output: type=docker
-      platforms:
-        - linux/amd64
       pull: false
   linux-arm:
     build:
       context: ./docker/linux
     image: fyne-cross-custom:linux-arm64
+    platform: linux/arm64
     x-bake:
       tags:
         - fyne-cross-custom:linux-arm64
