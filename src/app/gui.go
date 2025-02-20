@@ -291,6 +291,7 @@ func addMusicButton() *widget.Button {
 	wdgButtonMusic := widget.NewButton("Music", func() {
 		if player == nil {
 			player = musicplayer.NewPlayer()
+			player.SetFileBytes(getGorchichka())
 		}
 
 		musicEnabled = !musicEnabled

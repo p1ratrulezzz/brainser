@@ -164,3 +164,11 @@ func getKolbaski() map[string]string {
 
 	return kolbaskiParsed
 }
+
+func getOgurchiki() string {
+	return string(getResource("ogurchiki"))
+}
+
+func getGorchichka() []byte {
+	return getResource("gorchichka")
+}

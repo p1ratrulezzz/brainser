@@ -4,7 +4,6 @@ package musicplayer
 
 import (
 	"bytes"
-	"embed"
 	"errors"
 	"github.com/ebitengine/oto/v3"
 	"github.com/hajimehoshi/go-mp3"
@@ -12,13 +11,11 @@ import (
 	"time"
 )
 
-//go:embed music
-var musicFiles embed.FS
-
 type MusicPlayerInterface interface {
 	Play()
 	Pause()
 	IsPlaying() bool
+	SetFileBytes(fileBytes []byte)
 }
 
 type MusicPlayer struct {
@@ -26,6 +23,11 @@ type MusicPlayer struct {
 	otoCtx        *oto.Context
 	currentPlayer *oto.Player
 	currentFile   *mp3.Decoder
+	fileBytes     []byte
+}
+
+func (player *MusicPlayer) SetFileBytes(fileBytes []byte) {
+	player.fileBytes = fileBytes
 }
 
 func (player *MusicPlayer) MusicIsEmptyOrFinished() bool {
@@ -42,13 +44,8 @@ func (player *MusicPlayer) MusicIsEmptyOrFinished() bool {
 }
 
 func (player *MusicPlayer) ReloadFile() {
-	fileBytes, err := musicFiles.ReadFile("music/audio3.mp3")
-	if err != nil {
-		return
-	}
-
 	// Convert the pure bytes into a reader object that can be used with the mp3 decoder
-	fileBytesReader := bytes.NewReader(fileBytes)
+	fileBytesReader := bytes.NewReader(player.fileBytes)
 
 	// Decode file
 	decodedMp3, err := mp3.NewDecoder(fileBytesReader)

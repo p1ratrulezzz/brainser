@@ -6,8 +6,9 @@ type MusicPlayerBroken struct {
 	MusicPlayerInterface
 }
 
-func (p *MusicPlayerBroken) Play()  {}
-func (p *MusicPlayerBroken) Pause() {}
+func (p *MusicPlayerBroken) SetFileBytes(fileBytes []byte) {}
+func (p *MusicPlayerBroken) Play()                         {}
+func (p *MusicPlayerBroken) Pause()                        {}
 func (p *MusicPlayerBroken) IsPlaying() bool {
 	return false
 }
