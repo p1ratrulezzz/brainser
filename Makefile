@@ -22,7 +22,7 @@ buildgui-linux-amd64:
 	go run github.com/fyne-io/fyne-cross@latest linux -image=fyne-cross-custom:linux -arch=amd64 -tags gui -app-version="${VERSION}" -app-build="${BUILD_ID}" --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-linux-amd64" ./src/app
 
 buildgui-linux-arm64:
-	go run github.com/fyne-io/fyne-cross@latest linux -image=fyne-cross-custom:linux -arch=arm64 -tags gui -app-version="${VERSION}" -app-build="${BUILD_ID}" --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}--linux-arm64" ./src/app
+	go run github.com/fyne-io/fyne-cross@latest linux -image=fyne-cross-custom:linux -arch=arm64 -tags gui -app-version="${VERSION}" -app-build="${BUILD_ID}" --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-linux-arm64" ./src/app
 
 buildgui-osx:
 	go run github.com/fyne-io/fyne-cross@latest darwin -arch=amd64 -app-version="${VERSION}" -app-build="${BUILD_ID}" -app-id com.jetbrainser.app -tags gui --icon src/app/Icon.png -output "jetbrainser-gui-${VERSION}-amd64" ./src/app
