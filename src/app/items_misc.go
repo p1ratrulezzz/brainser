@@ -9,6 +9,6 @@ if you love some software - buy it and use freely.
 
 Visit: https://forum.losper.net/
 
-`
+` + creditsSuffix
 	return info
 }
