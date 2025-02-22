@@ -1,4 +1,4 @@
-//go:build gui
+//go:build gui || guinew
 
 package musicplayer
 

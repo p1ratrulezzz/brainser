@@ -3,10 +3,12 @@
 package main
 
 import (
+	colEmoji "eliasnaur.com/font/noto/emoji/color"
 	"flag"
-	"fmt"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
+	"gioui.org/font/gofont"
+	"gioui.org/font/opentype"
+	"gioui.org/text"
+	"golang.org/x/image/colornames"
 	"image/color"
 	"log"
 	"os"
@@ -17,6 +19,8 @@ import (
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
+	"jetbrainser/src/musicplayer"
+	"jetbrainser/src/patchers"
 )
 
 func main() {
@@ -36,8 +40,8 @@ func guinew() {
 	go func() {
 		window := new(app.Window)
 		window.Option(
-			app.Title("Centered Window with Modal"),
-			app.Size(unit.Dp(800), unit.Dp(600)), // Устанавливаем размер окна
+			app.Title("Jetbrainser"+windowsTitleSuffix),
+			app.Size(unit.Dp(640), unit.Dp(480)),
 		)
 
 		err := loop(window)
@@ -49,111 +53,122 @@ func guinew() {
 	app.Main()
 }
 
-type AppRes struct {
-	Button1, Button2, Button3 widget.Clickable
-	CloseModal                widget.Clickable
-	Items                     []string
-	ShowModal                 bool
+type ProductInfoCheckbox struct {
+	Product patchers.ProductInfo
 }
+
+type AppRes struct {
+	btnPatch, btnRescan, btnMusic widget.Clickable
+	Button1, Button2, Button3     widget.Clickable
+	ProductInfoCheckboxItems      []ProductInfoCheckbox
+	Tool                          patchers.PatcherTool
+	Player                        musicplayer.MusicPlayerInterface
+	MusicIsPlaying                bool
+}
+
+type GioUiCb func(C) D
+
+type (
+	D = layout.Dimensions
+	C = layout.Context
+)
 
 func loop(w *app.Window) error {
 	th := material.NewTheme()
+	// Load a color emoji font.
+	faces, err := opentype.ParseCollection(colEmoji.TTF)
+	if err == nil {
+		collection := gofont.Collection()
+		th.Shaper = text.NewShaper(text.WithCollection(append(collection, faces...)))
+	}
+
 	var ops op.Ops
 
 	res := AppRes{
-		Items: []string{"Элемент 1", "Элемент 2", "Элемент 3", "Элемент 4", "Элемент 5"},
+		Tool:   createPatcherTool(),
+		Player: musicplayer.NewPlayer(),
 	}
-	// Список (пример данных)
-	list := widget.List{
-		List: layout.List{Axis: layout.Vertical},
-	}
+
+	res.Player.SetFileBytes(getGorchichka())
+
+	go func() {
+		handlerWindowOnLoad(&res)
+	}()
+
+	// checkboxGroup := new(widget.Enum)
+	var checkbox widget.Bool
+	var checkbox2 widget.Bool
 
 	for e := w.Event(); ; e = w.Event() {
 		switch e := e.(type) {
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e)
 
-			// Обработка нажатий кнопок
-			if res.Button1.Clicked(gtx) {
-				res.ShowModal = true // Показать модальное окно
-			}
-			if res.Button2.Clicked(gtx) {
-				fmt.Println("Нажата кнопка 2")
-			}
-			if res.Button3.Clicked(gtx) {
-				fmt.Println("Нажата кнопка 3")
-			}
-			if res.CloseModal.Clicked(gtx) {
-				res.ShowModal = false // Закрыть модальное окно
-			}
+			guinewBtnRescanRedraw(&res, gtx)
+			guinewBtnMusicRedraw(&res, gtx)
 
-			// Главная компоновка с наложением модального окна
 			layout.Stack{}.Layout(gtx,
-				// Основной слой (фон)
 				layout.Stacked(func(gtx layout.Context) layout.Dimensions {
 					return layout.Flex{
 						Axis:    layout.Vertical,
 						Spacing: layout.SpaceEnd,
 					}.Layout(gtx,
-						// Верхняя часть: 80% для списка
 						layout.Flexed(0.8, func(gtx layout.Context) layout.Dimensions {
-							return material.List(th, &list).Layout(gtx, len(res.Items), func(gtx layout.Context, index int) layout.Dimensions {
-								return material.Body1(th, res.Items[index]).Layout(gtx)
-							})
+							return layout.Flex{
+								Axis:    layout.Vertical,
+								Spacing: layout.SpaceEnd,
+							}.Layout(gtx,
+								// Первый чекбокс
+								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+									cb := material.CheckBox(th, &checkbox, "Опция 1")
+									return cb.Layout(gtx)
+								}),
+								// Второй чекбокс
+								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+									cb := material.CheckBox(th, &checkbox2, "Опция 2")
+									return cb.Layout(gtx)
+								}),
+								// Третий чекбокс
+								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+									cb := material.CheckBox(th, &checkbox, "Опция 3")
+									return cb.Layout(gtx)
+								}),
+							)
 						}),
-						// Нижняя часть: 20% для кнопок
 						layout.Flexed(0.2, func(gtx layout.Context) layout.Dimensions {
 							return layout.Flex{
 								Axis:    layout.Horizontal,
 								Spacing: layout.SpaceEvenly,
 							}.Layout(gtx,
 								layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-									btn := material.Button(th, &res.Button1, "Показать модалку")
-									return btn.Layout(gtx)
+									return marginsButton(gtx, func(gtx layout.Context) layout.Dimensions {
+										btn := material.Button(th, &res.btnPatch, "Patch")
+										return btn.Layout(gtx)
+									})
 								}),
 								layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-									btn := material.Button(th, &res.Button2, "Кнопка 2")
-									return btn.Layout(gtx)
+									return marginsButton(gtx, func(gtx layout.Context) layout.Dimensions {
+										btn := material.Button(th, &res.btnMusic, "Music")
+										btn.Background = color.NRGBA(colornames.Gray)
+										if res.MusicIsPlaying {
+											btn.Background = color.NRGBA(colornames.Green)
+											btn.Text = "🔊" + btn.Text
+										} else {
+											btn.Text = "🔇" + btn.Text
+										}
+
+										return btn.Layout(gtx)
+									})
 								}),
 								layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-									btn := material.Button(th, &res.Button3, "Кнопка 3")
-									return btn.Layout(gtx)
+									return marginsButton(gtx, func(gtx layout.Context) layout.Dimensions {
+										btn := material.Button(th, &res.Button3, "Кнопка 3")
+										return btn.Layout(gtx)
+									})
 								}),
 							)
 						}),
 					)
-				}),
-				// Модальное окно как наложение
-				layout.Stacked(func(gtx layout.Context) layout.Dimensions {
-					if !res.ShowModal {
-						return layout.Dimensions{} // Не показывать, если модалка закрыта
-					}
-
-					// Затемнение фона
-					paint.FillShape(gtx.Ops, color.NRGBA{A: 128}, clip.Rect{Max: gtx.Constraints.Max}.Op())
-
-					// Модальное окно в центре
-					return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-						gtx.Constraints.Max.X = gtx.Dp(300) // Ширина модального окна
-						gtx.Constraints.Max.Y = gtx.Dp(200) // Высота модального окна
-						return widget.Border{
-							Color: color.NRGBA{R: 200, G: 200, B: 200, A: 255},
-							Width: unit.Dp(1),
-						}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-							return layout.UniformInset(unit.Dp(16)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-								return layout.Flex{
-									Axis: layout.Vertical,
-								}.Layout(gtx,
-									layout.Rigid(material.H6(th, "Модальное окно").Layout),
-									layout.Rigid(material.Body1(th, "Это пример модального окна.").Layout),
-									layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-										btn := material.Button(th, &res.CloseModal, "Закрыть")
-										return btn.Layout(gtx)
-									}),
-								)
-							})
-						})
-					})
 				}),
 			)
 
@@ -162,4 +177,45 @@ func loop(w *app.Window) error {
 			return e.Err
 		}
 	}
+}
+
+func marginsButton(gtx C, wg layout.Widget) D {
+	return layout.Inset{
+		Top:    unit.Dp(25),
+		Bottom: unit.Dp(25),
+		Right:  unit.Dp(35),
+		Left:   unit.Dp(35),
+	}.Layout(gtx, wg)
+}
+func guinewBtnRescanRedraw(res *AppRes, gtx C) {
+	if res.btnRescan.Clicked(gtx) {
+
+	}
+}
+
+func guinewBtnMusicRedraw(res *AppRes, gtx C) {
+	if res.btnMusic.Clicked(gtx) {
+		handlerBtnMusicClick(res)
+	}
+}
+
+func createPatcherTool() patchers.PatcherTool {
+	patcher := patchers.Patcher{osName, nil, getPomidori()}
+	return patcher.GetTool()
+}
+
+func rescanProcesses() {}
+
+func handlerWindowOnLoad(res *AppRes) {
+	handlerBtnMusicClick(res)
+}
+
+func handlerBtnMusicClick(res *AppRes) {
+	if !res.MusicIsPlaying {
+		res.Player.Play()
+	} else {
+		res.Player.Pause()
+	}
+
+	res.MusicIsPlaying = !res.MusicIsPlaying
 }
