@@ -281,6 +281,7 @@ func gui() {
 		// time.Sleep(1 * time.Second)
 		wdgButtonRescan.OnTapped()
 	}()
+
 	wndMain.SetContent(content)
 	wndMain.ShowAndRun()
 }
