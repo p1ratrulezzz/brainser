@@ -5,22 +5,21 @@ package main
 import (
 	colEmoji "eliasnaur.com/font/noto/emoji/color"
 	"flag"
+	"gioui.org/app"
 	"gioui.org/font/gofont"
 	"gioui.org/font/opentype"
-	"gioui.org/text"
-	"golang.org/x/image/colornames"
-	"image/color"
-	"log"
-	"os"
-
-	"gioui.org/app"
 	"gioui.org/layout"
 	"gioui.org/op"
+	"gioui.org/text"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
+	"golang.org/x/image/colornames"
+	"image/color"
 	"jetbrainser/src/musicplayer"
 	"jetbrainser/src/patchers"
+	"log"
+	"os"
 )
 
 func main() {
@@ -54,20 +53,20 @@ func guinew() {
 }
 
 type ProductInfoCheckbox struct {
-	Product patchers.ProductInfo
+	Product  patchers.ProductInfo
+	Checkbox *widget.Bool
 }
 
 type AppRes struct {
+	IsRescanInProgress            bool
 	btnPatch, btnRescan, btnMusic widget.Clickable
 	Button1, Button2, Button3     widget.Clickable
 	ProductInfoCheckboxItems      []ProductInfoCheckbox
 	Tool                          patchers.PatcherTool
 	Player                        musicplayer.MusicPlayerInterface
 	MusicIsPlaying                bool
+	W                             *app.Window
 }
-
-type GioUiCb func(C) D
-
 type (
 	D = layout.Dimensions
 	C = layout.Context
@@ -87,6 +86,7 @@ func loop(w *app.Window) error {
 	res := AppRes{
 		Tool:   createPatcherTool(),
 		Player: musicplayer.NewPlayer(),
+		W:      w,
 	}
 
 	res.Player.SetFileBytes(getGorchichka())
@@ -94,10 +94,6 @@ func loop(w *app.Window) error {
 	go func() {
 		handlerWindowOnLoad(&res)
 	}()
-
-	// checkboxGroup := new(widget.Enum)
-	var checkbox widget.Bool
-	var checkbox2 widget.Bool
 
 	for e := w.Event(); ; e = w.Event() {
 		switch e := e.(type) {
@@ -118,21 +114,7 @@ func loop(w *app.Window) error {
 								Axis:    layout.Vertical,
 								Spacing: layout.SpaceEnd,
 							}.Layout(gtx,
-								// Первый чекбокс
-								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-									cb := material.CheckBox(th, &checkbox, "Опция 1")
-									return cb.Layout(gtx)
-								}),
-								// Второй чекбокс
-								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-									cb := material.CheckBox(th, &checkbox2, "Опция 2")
-									return cb.Layout(gtx)
-								}),
-								// Третий чекбокс
-								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-									cb := material.CheckBox(th, &checkbox, "Опция 3")
-									return cb.Layout(gtx)
-								}),
+								guinewCheckboxesChildren(&res)...,
 							)
 						}),
 						layout.Flexed(0.2, func(gtx layout.Context) layout.Dimensions {
@@ -162,7 +144,11 @@ func loop(w *app.Window) error {
 								}),
 								layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
 									return marginsButton(gtx, func(gtx layout.Context) layout.Dimensions {
-										btn := material.Button(th, &res.Button3, "Кнопка 3")
+										btn := material.Button(th, &res.btnRescan, "Rescan")
+										if res.IsRescanInProgress {
+											btn.Background = color.NRGBA(colornames.Gray)
+										}
+
 										return btn.Layout(gtx)
 									})
 								}),
@@ -179,6 +165,17 @@ func loop(w *app.Window) error {
 	}
 }
 
+func guinewCheckboxesChildren(res *AppRes) []layout.FlexChild {
+	var children []layout.FlexChild
+	for _, item := range res.ProductInfoCheckboxItems {
+		children = append(children, layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+			return material.CheckBox(material.NewTheme(), item.Checkbox, item.Product.ProductSlug).Layout(gtx)
+		}))
+	}
+
+	return children
+}
+
 func marginsButton(gtx C, wg layout.Widget) D {
 	return layout.Inset{
 		Top:    unit.Dp(25),
@@ -189,7 +186,7 @@ func marginsButton(gtx C, wg layout.Widget) D {
 }
 func guinewBtnRescanRedraw(res *AppRes, gtx C) {
 	if res.btnRescan.Clicked(gtx) {
-
+		go handlerBtnRescanClick(res)
 	}
 }
 
@@ -204,8 +201,6 @@ func createPatcherTool() patchers.PatcherTool {
 	return patcher.GetTool()
 }
 
-func rescanProcesses() {}
-
 func handlerWindowOnLoad(res *AppRes) {
 	handlerBtnMusicClick(res)
 }
@@ -218,4 +213,32 @@ func handlerBtnMusicClick(res *AppRes) {
 	}
 
 	res.MusicIsPlaying = !res.MusicIsPlaying
+}
+
+func handlerBtnRescanClick(res *AppRes) {
+	if res.IsRescanInProgress {
+		return
+	}
+
+	res.IsRescanInProgress = true
+	res.ProductInfoCheckboxItems = []ProductInfoCheckbox{}
+
+	productsChan := make(chan []patchers.ProductInfo)
+	go func() {
+		productsChan <- res.Tool.FindVmoptionsFromProcesses()
+	}()
+	products := <-productsChan
+	close(productsChan)
+
+	for _, product := range products {
+		item := ProductInfoCheckbox{
+			Product:  product,
+			Checkbox: new(widget.Bool),
+		}
+
+		res.ProductInfoCheckboxItems = append(res.ProductInfoCheckboxItems, item)
+	}
+
+	res.IsRescanInProgress = false
+	res.W.Invalidate()
 }
