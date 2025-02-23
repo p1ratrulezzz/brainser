@@ -45,6 +45,18 @@ This will run the console variant
 ## Limitations
 Some versions of this app might not work in virtual machines such as VMWare and Parallels Desktop due to lack of support for OpenGL. Use console variant for virtual machines.
 
+# Disclaimer
+
+This software is just a wrapper over another software developed by other unknown guy or girl and all the rights to its content belongs to them. 
+This tool is developed on intention of learning Go programming language and is opensource for learning purposes only and any commercial use is prohibited.
+
+# Tools used
+Fyne https://github.com/fyne-io/fyne
+Fyne-cross https://github.com/fyne-io/fyne-cross
+Golang https://go.dev/doc/
+Docker https://www.docker.com/
+Oto (v3) https://github.com/ebitengine/oto (for music)
+Music: https://modarchive.org/
 
 # Donate
 
