@@ -2,7 +2,7 @@ BINARY_NAME=jetbrainser
 OUTDIR=bin
 SRCPATH=jetbrainser/src/app
 VERSION=0.0.11
-BUILD_ID := $(shell date +%y\ %W\ %u\ %H\ %M\ %S | awk '{print $$1 + $$2 + $$3 + $$4 + $$5 + $$6}')
+BUILD_ID=$(shell go run ./tools/buildid.go)
 
 docker-build:
 	docker buildx bake -f docker-compose.yml --load
@@ -35,3 +35,6 @@ build-non-macos: clean build buildgui-win buildgui-linux-amd64
 
 clean:
 	go clean
+
+
+include newgui.mk

@@ -10,6 +10,11 @@ import (
 	"runtime"
 )
 
+var (
+	Version     string = "dev"
+	BuildNumber string = "unknown"
+)
+
 var osName string
 
 //go:embed resources_enc
