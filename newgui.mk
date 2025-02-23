@@ -35,22 +35,22 @@ macos-newgui:
 	rm -rf bin/osx
 
 windows-newgui:
-	CGO_ENABLED=0 GOARCH=arm64 GOOS=windows go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w -H=windowsgui" -o bin/binary-windows-arm64.exe ./src/gui
-	CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w -H=windowsgui" -o bin/binary-windows-amd64.exe ./src/gui
+	CGO_ENABLED=0 GOARCH=arm64 GOOS=windows go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w -H=windowsgui ${LD_FLAGS}" -o bin/${BINARY_NAME}-windows-arm64.exe "${SRCPATH}"
+	CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w -H=windowsgui ${LD_FLAGS}" -o bin/${BINARY_NAME}-windows-amd64.exe "${SRCPATH}"
 
 linux-arm-newgui:
 	CGO_ENABLED=1 \
 	GOARCH=arm64 \
 	GOOS=linux \
-	go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w" -o bin/binary-linux-arm64 ./src/gui
+	go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w ${LD_FLAGS}" -o bin/${BINARY_NAME}-linux-arm64 "${SRCPATH}"
 
 linux-amd64-newgui:
 	CGO_ENABLED=1 \
 	GOARCH=amd64 \
 	GOOS=linux \
-	go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w" -o bin/binary-linux-amd64 ./src/gui
+	go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w ${LD_FLAGS}" -o bin/${BINARY_NAME}-linux-amd64 "${SRCPATH}"
 
 linux-docker-newgui:
-	docker compose build
-	docker run --rm --user "$(id -u):$(id -g)" --platform linux/arm64 -v ".:/app" -w /app test-linux:arm64 make linux-arm-newgui
-	docker run --rm --user "$(id -u):$(id -g)" --platform linux/amd64 -v ".:/app" -w /app test-linux:amd64 make linux-amd64-newgui
+	docker compose build linuxgo-arm linuxgo-amd64
+	docker run --rm --user "$(id -u):$(id -g)" --platform linux/arm64 -v ".:/app" -w /app brainser-linuxgo:arm64 make linux-arm-newgui
+	docker run --rm --user "$(id -u):$(id -g)" --platform linux/amd64 -v ".:/app" -w /app brainser-linuxgo:amd64 make linux-amd64-newgui

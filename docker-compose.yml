@@ -23,7 +23,7 @@ services:
       pull: false
   linuxgo-arm:
     build:
-      context: ./docker/linux
+      context: ./docker/linux-new
     image: brainser-linuxgo:arm64
     platform: linux/arm64
     x-bake:
@@ -35,7 +35,7 @@ services:
       pull: false
   linuxgo-amd64:
     build:
-      context: ./docker/linux
+      context: ./docker/linux-new
     image: brainser-linuxgo:amd64
     platform: linux/amd64
     x-bake:
