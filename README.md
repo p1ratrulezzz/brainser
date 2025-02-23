@@ -52,10 +52,15 @@ This tool is developed on intention of learning Go programming language and is o
 
 # Tools used
 Fyne https://github.com/fyne-io/fyne
+
 Fyne-cross https://github.com/fyne-io/fyne-cross
+
 Golang https://go.dev/doc/
+
 Docker https://www.docker.com/
+
 Oto (v3) https://github.com/ebitengine/oto (for music)
+
 Music: https://modarchive.org/
 
 # Donate
