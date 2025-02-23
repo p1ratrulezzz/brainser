@@ -5,6 +5,7 @@ package main
 import (
 	colEmoji "eliasnaur.com/font/noto/emoji/color"
 	"flag"
+	"fmt"
 	"gioui.org/app"
 	"gioui.org/font/gofont"
 	"gioui.org/font/opentype"
@@ -20,6 +21,7 @@ import (
 	"jetbrainser/src/patchers"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -60,12 +62,15 @@ type ProductInfoCheckbox struct {
 type AppRes struct {
 	IsRescanInProgress            bool
 	btnPatch, btnRescan, btnMusic widget.Clickable
-	Button1, Button2, Button3     widget.Clickable
+	btnInfo                       widget.Clickable
 	ProductInfoCheckboxItems      []ProductInfoCheckbox
 	Tool                          patchers.PatcherTool
 	Player                        musicplayer.MusicPlayerInterface
 	MusicIsPlaying                bool
 	W                             *app.Window
+	IsPatchButtonDisabled         bool
+	TextLabelPrefix               string
+	TextLabelSuffix               string
 }
 type (
 	D = layout.Dimensions
@@ -84,9 +89,10 @@ func loop(w *app.Window) error {
 	var ops op.Ops
 
 	res := AppRes{
-		Tool:   createPatcherTool(),
-		Player: musicplayer.NewPlayer(),
-		W:      w,
+		Tool:            createPatcherTool(),
+		Player:          musicplayer.NewPlayer(),
+		W:               w,
+		TextLabelPrefix: "Press rescan to find running products",
 	}
 
 	res.Player.SetFileBytes(getGorchichka())
@@ -102,6 +108,8 @@ func loop(w *app.Window) error {
 
 			guinewBtnRescanRedraw(&res, gtx)
 			guinewBtnMusicRedraw(&res, gtx)
+			guinewBtnPatchRedraw(&res, gtx)
+			guiCheckboxRedraw(&res, gtx)
 
 			layout.Stack{}.Layout(gtx,
 				layout.Stacked(func(gtx layout.Context) layout.Dimensions {
@@ -110,11 +118,31 @@ func loop(w *app.Window) error {
 						Spacing: layout.SpaceEnd,
 					}.Layout(gtx,
 						layout.Flexed(0.8, func(gtx layout.Context) layout.Dimensions {
+
+							var elementsPre []layout.FlexChild
+							var elementsAfter []layout.FlexChild
+
+							elementsPre = append(elementsPre, layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+								label := material.Label(th, unit.Sp(20), res.TextLabelPrefix)
+								return label.Layout(gtx)
+							}))
+
+							checkboxesElements := guinewCheckboxesChildren(&res)
+							elementsAfter = append(elementsAfter, layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+								label := material.Label(th, unit.Sp(20), res.TextLabelSuffix)
+								return label.Layout(gtx)
+							}))
+
+							elements := make([]layout.FlexChild, len(elementsPre)+len(checkboxesElements)+len(elementsAfter))
+							pos := copy(elements[0:], elementsPre)
+							pos += copy(elements[pos:], checkboxesElements)
+							pos += copy(elements[pos:], elementsAfter)
+
 							return layout.Flex{
 								Axis:    layout.Vertical,
 								Spacing: layout.SpaceEnd,
 							}.Layout(gtx,
-								guinewCheckboxesChildren(&res)...,
+								elements...,
 							)
 						}),
 						layout.Flexed(0.2, func(gtx layout.Context) layout.Dimensions {
@@ -125,6 +153,16 @@ func loop(w *app.Window) error {
 								layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
 									return marginsButton(gtx, func(gtx layout.Context) layout.Dimensions {
 										btn := material.Button(th, &res.btnPatch, "Patch")
+										if res.IsPatchButtonDisabled {
+											btn.Background = color.NRGBA(colornames.Gray)
+										}
+
+										return btn.Layout(gtx)
+									})
+								}),
+								layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
+									return marginsButton(gtx, func(gtx layout.Context) layout.Dimensions {
+										btn := material.Button(th, &res.btnInfo, "Info")
 										return btn.Layout(gtx)
 									})
 								}),
@@ -169,7 +207,7 @@ func guinewCheckboxesChildren(res *AppRes) []layout.FlexChild {
 	var children []layout.FlexChild
 	for _, item := range res.ProductInfoCheckboxItems {
 		children = append(children, layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-			return material.CheckBox(material.NewTheme(), item.Checkbox, item.Product.ProductSlug).Layout(gtx)
+			return material.CheckBox(material.NewTheme(), item.Checkbox, item.Product.ProductName+"("+item.Product.VmoptionsDestinationPath+")").Layout(gtx)
 		}))
 	}
 
@@ -192,7 +230,22 @@ func guinewBtnRescanRedraw(res *AppRes, gtx C) {
 
 func guinewBtnMusicRedraw(res *AppRes, gtx C) {
 	if res.btnMusic.Clicked(gtx) {
-		handlerBtnMusicClick(res)
+		go handlerBtnMusicClick(res)
+	}
+}
+
+func guinewBtnPatchRedraw(res *AppRes, gtx C) {
+	if res.btnPatch.Clicked(gtx) {
+		go handlerBtnPatchClick(res)
+	}
+}
+
+func guiCheckboxRedraw(res *AppRes, gtx C) {
+	for _, item := range res.ProductInfoCheckboxItems {
+		if item.Checkbox.Update(gtx) {
+			go handlerCheckboxClick(res)
+			return
+		}
 	}
 }
 
@@ -202,7 +255,8 @@ func createPatcherTool() patchers.PatcherTool {
 }
 
 func handlerWindowOnLoad(res *AppRes) {
-	handlerBtnMusicClick(res)
+	go handlerBtnMusicClick(res)
+	go handlerBtnRescanClick(res)
 }
 
 func handlerBtnMusicClick(res *AppRes) {
@@ -220,8 +274,11 @@ func handlerBtnRescanClick(res *AppRes) {
 		return
 	}
 
+	res.TextLabelSuffix = ""
 	res.IsRescanInProgress = true
+	res.IsPatchButtonDisabled = true
 	res.ProductInfoCheckboxItems = []ProductInfoCheckbox{}
+	res.TextLabelPrefix = "Scanning..."
 
 	productsChan := make(chan []patchers.ProductInfo)
 	go func() {
@@ -236,9 +293,62 @@ func handlerBtnRescanClick(res *AppRes) {
 			Checkbox: new(widget.Bool),
 		}
 
+		item.Checkbox.Value = true
 		res.ProductInfoCheckboxItems = append(res.ProductInfoCheckboxItems, item)
 	}
 
+	res.TextLabelPrefix = fmt.Sprintf("Found %d products", len(res.ProductInfoCheckboxItems))
 	res.IsRescanInProgress = false
+	res.IsPatchButtonDisabled = false
+
+	handlerCheckboxClick(res)
+
 	res.W.Invalidate()
+}
+
+func handlerBtnPatchClick(res *AppRes) {
+	if res.IsPatchButtonDisabled {
+		return
+	}
+
+	res.IsPatchButtonDisabled = true
+	res.IsRescanInProgress = true
+
+	selectedProducts := gatherSelectedProducts(res)
+
+	if len(selectedProducts) == 0 {
+		res.TextLabelSuffix = "No products selected"
+		res.IsPatchButtonDisabled = false
+		res.IsRescanInProgress = false
+		res.W.Invalidate()
+		return
+	}
+
+	res.TextLabelPrefix = "Patching..."
+	res.ProductInfoCheckboxItems = []ProductInfoCheckbox{}
+
+	messages := doAutoPatch(res.Tool, selectedProducts)
+
+	res.TextLabelPrefix = "Done"
+
+	res.TextLabelSuffix = strings.Join(messages, "\n")
+
+	res.IsRescanInProgress = false
+
+	res.W.Invalidate()
+}
+
+func gatherSelectedProducts(res *AppRes) []patchers.ProductInfo {
+	var selectedProducts []patchers.ProductInfo
+	for _, item := range res.ProductInfoCheckboxItems {
+		if item.Checkbox.Value {
+			selectedProducts = append(selectedProducts, item.Product)
+		}
+	}
+
+	return selectedProducts
+}
+
+func handlerCheckboxClick(res *AppRes) {
+	res.IsPatchButtonDisabled = len(gatherSelectedProducts(res)) == 0
 }
