@@ -60,6 +60,7 @@ type ProductInfoCheckbox struct {
 }
 
 type AppRes struct {
+	IsInfoWindowOpen              bool
 	IsRescanInProgress            bool
 	btnPatch, btnRescan, btnMusic widget.Clickable
 	btnInfo                       widget.Clickable
@@ -257,6 +258,11 @@ func guiBtnInfoRedraw(res *AppRes, gtx C) {
 }
 
 func handlerBtnInfoClick(res *AppRes) {
+	if res.IsInfoWindowOpen {
+		return
+	}
+
+	res.IsInfoWindowOpen = true
 	w := new(app.Window)
 	w.Option(
 		app.Title("Info"),
@@ -267,6 +273,8 @@ func handlerBtnInfoClick(res *AppRes) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	res.IsInfoWindowOpen = false
 }
 
 func createPatcherTool() patchers.PatcherTool {
