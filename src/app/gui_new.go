@@ -41,7 +41,7 @@ func guinew() {
 	go func() {
 		window := new(app.Window)
 		window.Option(
-			app.Title("Jetbrainser "+Version+" ("+getKapusta()+") Build: "+BuildNumber+""),
+			app.Title("Jetbrainser "+Version+" ("+getKapusta()+")"),
 			app.Size(unit.Dp(640), unit.Dp(480)),
 		)
 
