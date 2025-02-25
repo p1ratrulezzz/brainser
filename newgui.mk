@@ -57,8 +57,8 @@ linux-amd64-newgui:
 	go build -tags "${BUILD_TAGS}" -buildvcs=false -trimpath -ldflags "-s -w ${LD_FLAGS}" -o bin/${BINARY_NAME}-linux-amd64 "${SRCPATH}"
 
 linux-docker-newgui:
-	#docker buildx build --platform linux/arm64 -t brainser-linuxgo:arm64 --output type=docker --load ./docker/linux-new
-	#docker buildx build --platform linux/amd64 -t brainser-linuxgo:amd64 --output type=docker --load ./docker/linux-new
+	docker buildx build --platform linux/arm64 -t brainser-linuxgo:arm64 --output type=docker --load ./docker/linux-new
+	docker buildx build --platform linux/amd64 -t brainser-linuxgo:amd64 --output type=docker --load ./docker/linux-new
 
 	docker run --rm --user root --platform linux/amd64 -v ".:/app" -w /app brainser-linuxgo:amd64 bash -c "make linux-amd64-newgui ; chown -R ${UID}:${GID} /app/bin"
-	#docker run --rm --user root --platform linux/arm64 -v ".:/app" -w /app brainser-linuxgo:arm64 bash -c "make linux-arm-newgui ; chown -R ${UID}:${GID} /app/bin"
+	docker run --rm --user root --platform linux/arm64 -v ".:/app" -w /app brainser-linuxgo:arm64 bash -c "make linux-arm-newgui ; chown -R ${UID}:${GID} /app/bin"
