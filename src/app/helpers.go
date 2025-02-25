@@ -172,3 +172,11 @@ func getOgurchiki() string {
 func getGorchichka() []byte {
 	return getResource("gorchichka")
 }
+
+func getKapusta() string {
+	return string(getResource("kapusta"))
+}
+
+func getPerchik() string {
+	return string(getResource("perchik"))
+}

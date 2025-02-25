@@ -41,7 +41,7 @@ func guinew() {
 	go func() {
 		window := new(app.Window)
 		window.Option(
-			app.Title("Jetbrainser "+Version+" "+windowsTitleSuffix+" Build: "+BuildNumber+""),
+			app.Title("Jetbrainser "+Version+" ("+getKapusta()+") Build: "+BuildNumber+""),
 			app.Size(unit.Dp(640), unit.Dp(480)),
 		)
 
@@ -110,6 +110,7 @@ func loop(w *app.Window) error {
 			guinewBtnMusicRedraw(&res, gtx)
 			guinewBtnPatchRedraw(&res, gtx)
 			guiCheckboxRedraw(&res, gtx)
+			guiBtnInfoRedraw(&res, gtx)
 
 			layout.Stack{}.Layout(gtx,
 				layout.Stacked(func(gtx layout.Context) layout.Dimensions {
@@ -246,6 +247,25 @@ func guiCheckboxRedraw(res *AppRes, gtx C) {
 			go handlerCheckboxClick(res)
 			return
 		}
+	}
+}
+
+func guiBtnInfoRedraw(res *AppRes, gtx C) {
+	if res.btnInfo.Clicked(gtx) {
+		go handlerBtnInfoClick(res)
+	}
+}
+
+func handlerBtnInfoClick(res *AppRes) {
+	w := new(app.Window)
+	w.Option(
+		app.Title("Info"),
+		app.Size(unit.Dp(300), unit.Dp(300)),
+	)
+
+	err := guinew_infowindow_loop(w)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
