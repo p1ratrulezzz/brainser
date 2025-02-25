@@ -11,7 +11,6 @@ clean-newgui:
 	rm -f bin/*
 macos-newgui-arm:
 	rm -rf bin/osx
-	rm -rf dist/darwin
 	mkdir -p ./dist/darwin
 	mkdir -p ./bin/osx
 	CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w ${LD_FLAGS}" -o bin/${BINARY_NAME}-darwin-arm64 "${SRCPATH}"
@@ -26,7 +25,6 @@ macos-newgui-arm:
 
 macos-newgui-amd64:
 	rm -rf bin/osx
-	rm -rf dist/darwin
 	mkdir -p ./dist/darwin
 	mkdir -p ./bin/osx
 	CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w ${LD_FLAGS}" -o bin/${BINARY_NAME}-darwin-amd64 "${SRCPATH}"
@@ -62,3 +60,5 @@ linux-docker-newgui:
 
 	docker run --rm --user root --platform linux/amd64 -v ".:/app" -w /app brainser-linuxgo:amd64 bash -c "make linux-amd64-newgui ; chown -R ${UID}:${GID} /app/bin"
 	docker run --rm --user root --platform linux/arm64 -v ".:/app" -w /app brainser-linuxgo:arm64 bash -c "make linux-arm-newgui ; chown -R ${UID}:${GID} /app/bin"
+
+newgui-from-mac: linux-docker-newgui windows-newgui macos-newgui-arm macos-newgui-amd64
