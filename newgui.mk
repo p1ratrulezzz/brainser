@@ -2,7 +2,7 @@ APPID=com.jetbrainser.gui
 APPNAME=Jetbrainser GUI
 VERSION=$(shell git describe --tags --always)
 BUILD_TAGS=guinew
-LD_FLAGS=-X main.Version=\"${VERSION}\" -X main.BuildNumber=\"${BUILD_ID}\"
+LD_FLAGS=-X main.Version=${VERSION} -X main.BuildNumber=${BUILD_ID}
 UID=$(shell id -u)
 GID=$(shell id -g)
 
