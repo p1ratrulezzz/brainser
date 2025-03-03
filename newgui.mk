@@ -38,6 +38,45 @@ macos-newgui-amd64:
 			-o ./dist/darwin
 	rm -rf bin/osx
 
+
+macos-12.0-newgui-amd64:
+	mkdir -p ./dist/darwin
+	SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk \
+	CGO_CFLAGS="-mmacosx-version-min=12.0" CGO_LDFLAGS="-mmacosx-version-min=12.0" \
+	CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w ${LD_FLAGS}" -o bin/${BINARY_NAME}-darwin-12.0-amd64 "${SRCPATH}"
+
+macos-12.0-newgui-arm64:
+	mkdir -p ./dist/darwin
+	SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk \
+	CGO_CFLAGS="-mmacosx-version-min=12.0" CGO_LDFLAGS="-mmacosx-version-min=12.0" \
+	CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w ${LD_FLAGS}" -o bin/${BINARY_NAME}-darwin-12.0-arm64 "${SRCPATH}"
+
+
+macos-12.0-newgui-app: macos-12.0-newgui-amd64 macos-12.0-newgui-arm64
+	rm -rf ./bin/osx
+	mkdir -p ./bin/osx
+	lipo -create -output bin/osx/app bin/${BINARY_NAME}-darwin-12.0-amd64 bin/${BINARY_NAME}-darwin-12.0-arm64
+	go run ./tools/macapp.go \
+			-assets ./bin/osx \
+			-bin app \
+			-icon ./Icon.png \
+			-identifier "${APPID}" \
+			-name "${APPNAME}-12.0" \
+			-o ./dist/darwin
+	rm -rf bin/osx
+
+macos-14.5-newgui-amd64:
+	mkdir -p ./dist/darwin
+	SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX14.5.sdk \
+	CGO_CFLAGS="-mmacosx-version-min=14.5" CGO_LDFLAGS="-mmacosx-version-min=14.5" \
+	CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w ${LD_FLAGS}" -o bin/${BINARY_NAME}-darwin-14.5-amd64 "${SRCPATH}"
+
+macos-14.5-newgui-arm64:
+	mkdir -p ./dist/darwin
+	SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX14.5.sdk \
+	CGO_CFLAGS="-mmacosx-version-min=14.5" CGO_LDFLAGS="-mmacosx-version-min=14.5" \
+	CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w ${LD_FLAGS}" -o bin/${BINARY_NAME}-darwin-14.5-arm64 "${SRCPATH}"
+
 windows-newgui:
 	CGO_ENABLED=0 GOARCH=arm64 GOOS=windows go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w -H=windowsgui ${LD_FLAGS}" -o bin/${BINARY_NAME}-windows-arm64.exe "${SRCPATH}"
 	CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -tags "${BUILD_TAGS}" -trimpath -ldflags "-s -w -H=windowsgui ${LD_FLAGS}" -o bin/${BINARY_NAME}-windows-amd64.exe "${SRCPATH}"
@@ -62,3 +101,7 @@ linux-docker-newgui:
 	docker run --rm --user root --platform linux/arm64 -v ".:/app" -w /app brainser-linuxgo:arm64 bash -c "make linux-arm-newgui ; chown -R ${UID}:${GID} /app/bin"
 
 newgui-from-mac: linux-docker-newgui windows-newgui macos-newgui-arm macos-newgui-amd64
+	lipo -create -output bin/${BINARY_NAME}-macos bin/${BINARY_NAME}-darwin-amd64 bin/${BINARY_NAME}-darwin-arm64
+
+newgui-mac-from-mac: macos-newgui-arm macos-newgui-amd64
+	lipo -create -output bin/${BINARY_NAME}-macos bin/${BINARY_NAME}-darwin-amd64 bin/${BINARY_NAME}-darwin-arm64
